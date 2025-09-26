@@ -65,7 +65,7 @@ public class BlackjackCommand implements CommandExecutor {
             }
 
             if (games.containsKey(playerId)) {
-                player.sendMessage("You already have a game in progress.");
+                player.sendMessage("You already have a game in progress. Use /blackjack hit or /blackjack stand to continue.");
                 return true;
             }
 
