@@ -17,11 +17,13 @@ public class RouletteGUI implements InventoryHolder {
     private final Gambling plugin;
     private final Player player;
     private final Inventory gui;
+    private final double totalBet;
 
-    public RouletteGUI(Gambling plugin, Player player) {
+    public RouletteGUI(Gambling plugin, Player player, double totalBet) {
         this.plugin = plugin;
         this.player = player;
-        this.gui = Bukkit.createInventory(this, 54, ChatColor.DARK_RED + "Roulette");
+        this.totalBet = totalBet;
+        this.gui = Bukkit.createInventory(this, 54, ChatColor.DARK_RED + "" + ChatColor.BOLD + "Roulette");
         initializeItems();
     }
 
@@ -31,19 +33,35 @@ public class RouletteGUI implements InventoryHolder {
         int[] numbers = {0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26};
 
         for (int i = 0; i < numbers.length; i++) {
-            Material material = (numbers[i] != 0 && numbers[i] % 2 == 0)? Material.RED_STAINED_GLASS_PANE : Material.BLACK_STAINED_GLASS_PANE;
-            if (numbers[i] == 0) material = Material.GREEN_STAINED_GLASS_PANE;
-            if(i < border.length)
+            Material material = (numbers[i] != 0 && numbers[i] % 2 == 0) ? Material.RED_CONCRETE : Material.BLACK_CONCRETE;
+            if (numbers[i] == 0) material = Material.GREEN_CONCRETE;
+            if (i < border.length)
                 gui.setItem(border[i], createGuiItem(material, String.valueOf(numbers[i])));
         }
 
-        gui.setItem(22, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "Spin"));
+        gui.setItem(22, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "" + ChatColor.BOLD + "SPIN"));
+        gui.setItem(48, createGuiItem(Material.OAK_DOOR, ChatColor.YELLOW + "Back"));
+        gui.setItem(49, createGuiItem(Material.GOLD_INGOT, ChatColor.GOLD + "Total Bet", ChatColor.GRAY + "Amount: " + ChatColor.WHITE + Gambling.getEconomy().format(totalBet)));
+    }
+
+    public void showResult(int winningNumber) {
+        gui.setItem(22, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "Spin Again"));
+        gui.setItem(48, createGuiItem(Material.YELLOW_STAINED_GLASS_PANE, ChatColor.YELLOW + "Edit Bet"));
+
+        // Highlight winning number
+        for (int i = 0; i < gui.getSize(); i++) {
+            ItemStack item = gui.getItem(i);
+            if (item != null && item.hasItemMeta() && item.getItemMeta().getDisplayName().equals(String.valueOf(winningNumber))) {
+                item.setType(Material.DIAMOND_BLOCK);
+                break;
+            }
+        }
     }
 
     private ItemStack createGuiItem(Material material, String name, String... lore) {
         ItemStack item = new ItemStack(material, 1);
         ItemMeta meta = item.getItemMeta();
-        if (meta!= null) {
+        if (meta != null) {
             meta.setDisplayName(name);
             meta.setLore(Arrays.asList(lore));
             item.setItemMeta(meta);

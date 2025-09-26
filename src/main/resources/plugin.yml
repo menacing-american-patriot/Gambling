@@ -1,5 +1,5 @@
 name: Gambling
-version: '1.1.2'
+version: '1.2.2'
 main: org.jeffstein.gambling.Gambling
 api-version: '1.21'
 load: STARTUP
@@ -31,7 +31,7 @@ commands:
   poker:
     description: Play poker with other players.
     usage: /poker <join|leave|bet|check|fold>
-    aliases: [pk]
+    aliases: [pk, pkr]
   baccarat:
     description: Play a game of baccarat!
     usage: /baccarat
@@ -44,3 +44,10 @@ commands:
     description: Play a game of blackjack with a GUI!
     usage: /blackjackgui
     aliases: [bjg]
+  keno:
+    description: Play a game of keno!
+    usage: /keno
+  craps:
+    description: Play a game of craps!
+    usage: /craps
+    aliases: [crp, cps]

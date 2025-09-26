@@ -5,11 +5,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jeffstein.gambling.commands.*;
-import org.jeffstein.gambling.listeners.BlackjackGUIListener;
-import org.jeffstein.gambling.listeners.RouletteListener;
+import org.jeffstein.gambling.commands.KenoCommand;
+import org.jeffstein.gambling.commands.LeaderboardCommand;
+import org.jeffstein.gambling.commands.PokerCommand;
+import org.jeffstein.gambling.commands.RouletteCommand;
+import org.jeffstein.gambling.commands.SlotsCommand;
+import org.jeffstein.gambling.commands.CrapsCommand;
 import org.jeffstein.gambling.listeners.BaccaratListener;
+import org.jeffstein.gambling.listeners.BlackjackGUIListener;
+import org.jeffstein.gambling.listeners.KenoListener;
+import org.jeffstein.gambling.listeners.RouletteListener;
 import org.jeffstein.gambling.listeners.SlotsListener;
-import org.jeffstein.gambling.listeners.SlotsListener;
+import org.jeffstein.gambling.listeners.CrapsListener;
 
 import java.util.logging.Logger;
 
@@ -42,10 +49,14 @@ public final class Gambling extends JavaPlugin {
         getCommand("baccarat").setExecutor(new BaccaratCommand(this));
         getCommand("roulette").setExecutor(new RouletteCommand(this));
         getCommand("blackjackgui").setExecutor(new BlackjackGUICommand(this));
+        getCommand("keno").setExecutor(new KenoCommand(this));
+        getCommand("craps").setExecutor(new CrapsCommand(this));
         getServer().getPluginManager().registerEvents(new SlotsListener(this), this);
         getServer().getPluginManager().registerEvents(new BaccaratListener(this), this);
         getServer().getPluginManager().registerEvents(new RouletteListener(this), this);
         getServer().getPluginManager().registerEvents(new BlackjackGUIListener(this), this);
+        getServer().getPluginManager().registerEvents(new KenoListener(this), this);
+        getServer().getPluginManager().registerEvents(new CrapsListener(this), this);
     }
 
     @Override

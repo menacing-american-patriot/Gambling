@@ -1,18 +1,17 @@
 package org.jeffstein.gambling.commands;
 
 import org.jeffstein.gambling.Gambling;
-import org.jeffstein.gambling.games.RouletteGUI;
-import org.jeffstein.gambling.games.RouletteBettingGUI;
+import org.jeffstein.gambling.games.KenoGUI;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class RouletteCommand implements CommandExecutor {
+public class KenoCommand implements CommandExecutor {
 
     private final Gambling plugin;
 
-    public RouletteCommand(Gambling plugin) {
+    public KenoCommand(Gambling plugin) {
         this.plugin = plugin;
     }
 
@@ -24,8 +23,7 @@ public class RouletteCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        RouletteGUI gui = new RouletteGUI(plugin, player);
-        RouletteBettingGUI gui = new RouletteBettingGUI(plugin, player);
+        KenoGUI gui = new KenoGUI(plugin, player);
         gui.openInventory();
         return true;
     }
