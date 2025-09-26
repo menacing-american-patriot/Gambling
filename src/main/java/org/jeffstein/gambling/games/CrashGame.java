@@ -58,21 +58,25 @@ public class CrashGame {
     
     public boolean placeBet(Player player, double amount) {
         if (!bettingPhase) {
-            // Use sound feedback instead of hidden message
+            // Sound + chat feedback
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.RED + "[CRASH] Betting is closed! Wait for next round.");
             return false;
         }
 
         if (amount < MIN_BET || amount > MAX_BET) {
-            // Use sound feedback instead of hidden message
+            // Sound + chat feedback
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.RED + "[CRASH] Bet must be between " +
+                Gambling.getEconomy().format(MIN_BET) + " and " + Gambling.getEconomy().format(MAX_BET));
             return false;
         }
 
         Economy economy = Gambling.getEconomy();
         if (economy.getBalance(player) < amount) {
-            // Use sound feedback instead of hidden message
+            // Sound + chat feedback
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.RED + "[CRASH] Insufficient funds! Need " + economy.format(amount));
             return false;
         }
 
@@ -84,28 +88,32 @@ public class CrashGame {
 
         economy.withdrawPlayer(player, amount);
         playerBets.put(player.getUniqueId(), amount);
-        // Use sound feedback for successful bet
+        // Sound + chat feedback for successful bet
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+        player.sendMessage(ChatColor.GREEN + "[CRASH] Bet placed: " + economy.format(amount));
 
         return true;
     }
     
     public boolean setAutoCashout(Player player, double multiplier) {
         if (!playerBets.containsKey(player.getUniqueId())) {
-            // Use sound feedback instead of hidden message
+            // Sound + chat feedback
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.RED + "[CRASH] Place a bet first!");
             return false;
         }
 
         if (multiplier < 1.01 || multiplier > 1000.0) {
-            // Use sound feedback instead of hidden message
+            // Sound + chat feedback
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.RED + "[CRASH] Auto-cashout must be between 1.01x and 1000x");
             return false;
         }
 
         playerAutoCashout.put(player.getUniqueId(), multiplier);
-        // Use sound feedback for successful auto-cashout setting
+        // Sound + chat feedback for successful auto-cashout setting
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
+        player.sendMessage(ChatColor.YELLOW + "[CRASH] Auto-cashout set at " + String.format("%.2fx", multiplier));
         return true;
     }
     
@@ -144,6 +152,9 @@ public class CrashGame {
                         ChatColor.GOLD + "+" + economy.format(profit) + " at " + String.format("%.2fx", currentMultiplier),
                         10, 60, 20);
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
+        // Also send to chat
+        player.sendMessage(ChatColor.GREEN + "[CRASH] " + ChatColor.BOLD + "CASHED OUT! " +
+                         ChatColor.GOLD + "+" + economy.format(profit) + " at " + String.format("%.2fx", currentMultiplier));
 
         Gambling.getLeaderboard().addWin(playerId, profit);
         return true;
@@ -212,6 +223,10 @@ public class CrashGame {
                                    ChatColor.GRAY + "-" + Gambling.getEconomy().format(lostAmount) +
                                    " at " + String.format("%.2fx", crashPoint), 10, 60, 20);
                     player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 0.8f);
+                    // Also send to chat
+                    player.sendMessage(ChatColor.RED + "[CRASH] " + ChatColor.BOLD + "CRASHED! " +
+                                     ChatColor.GRAY + "-" + Gambling.getEconomy().format(lostAmount) +
+                                     " at " + String.format("%.2fx", crashPoint));
                     Gambling.getLeaderboard().addLoss(playerId, lostAmount);
                 }
             }

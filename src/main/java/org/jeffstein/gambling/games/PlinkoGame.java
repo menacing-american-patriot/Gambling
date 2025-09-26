@@ -133,29 +133,32 @@ public class PlinkoGame implements InventoryHolder {
 
     public void dropBall(int dropPosition) {
         if (ballDropping) {
-            // Update GUI to show status instead of hidden message
+            // GUI + chat feedback
             updateStatusDisplay(ChatColor.RED + "Ball in progress...", ChatColor.GRAY + "Wait for current ball to finish");
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.RED + "[PLINKO] Wait for the current ball to finish!");
             return;
         }
 
         if (economy.getBalance(player) < betAmount) {
-            // Update GUI to show insufficient funds instead of hidden message
+            // GUI + chat feedback
             updateStatusDisplay(ChatColor.RED + "Insufficient Funds!",
                               ChatColor.GRAY + "Need " + economy.format(betAmount),
                               ChatColor.YELLOW + "Current: " + economy.format(economy.getBalance(player)));
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.RED + "[PLINKO] Insufficient funds! Need " + economy.format(betAmount));
             return;
         }
 
         economy.withdrawPlayer(player, betAmount);
         ballDropping = true;
 
-        // Update GUI to show ball dropping status
+        // GUI + chat feedback
         updateStatusDisplay(ChatColor.YELLOW + "Ball Dropping...",
                           ChatColor.GRAY + "Bet: " + economy.format(betAmount),
                           ChatColor.GREEN + "Good luck!");
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+        player.sendMessage(ChatColor.YELLOW + "[PLINKO] Ball dropping... Bet: " + economy.format(betAmount));
 
         // Simulate ball physics
         simulateBallDrop(dropPosition);
@@ -291,11 +294,17 @@ public class PlinkoGame implements InventoryHolder {
                 player.closeInventory();
                 player.sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "PLINKO JACKPOT!",
                                ChatColor.GREEN + "+" + economy.format(profit) + " at " + String.format("%.0fx", multiplier), 10, 80, 20);
+                // Also send to chat
+                player.sendMessage(ChatColor.GOLD + "[PLINKO] " + ChatColor.BOLD + "JACKPOT! " +
+                                 ChatColor.GREEN + "+" + economy.format(profit) + " at " + String.format("%.0fx", multiplier));
                 Bukkit.broadcastMessage(ChatColor.GOLD + player.getName() + " won " +
                                       economy.format(profit) + " in Plinko with a " +
                                       String.format("%.0fx", multiplier) + " multiplier!");
             } else {
                 player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
+                // Send regular win to chat
+                player.sendMessage(ChatColor.GREEN + "[PLINKO] You won " + economy.format(profit) +
+                                 " with " + String.format("%.1fx", multiplier) + " multiplier!");
             }
             Gambling.getLeaderboard().addWin(player.getUniqueId(), profit);
         } else {
@@ -304,6 +313,9 @@ public class PlinkoGame implements InventoryHolder {
                               ChatColor.GRAY + economy.format(profit),
                               ChatColor.DARK_GRAY + "Better luck next time!");
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 0.8f);
+            // Send loss to chat
+            player.sendMessage(ChatColor.RED + "[PLINKO] You lost " + economy.format(Math.abs(profit)) +
+                             " with " + String.format("%.1fx", multiplier) + " multiplier");
             Gambling.getLeaderboard().addLoss(player.getUniqueId(), Math.abs(profit));
         }
 

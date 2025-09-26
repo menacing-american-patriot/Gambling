@@ -143,11 +143,12 @@ public class MinesGame implements InventoryHolder {
         if (gameStarted) return;
 
         if (economy.getBalance(player) < betAmount) {
-            // Update GUI status instead of hidden message
+            // GUI + chat feedback
             updateStatusDisplay(ChatColor.RED + "Insufficient Funds!",
                               ChatColor.GRAY + "Need: " + economy.format(betAmount),
                               ChatColor.YELLOW + "Current: " + economy.format(economy.getBalance(player)));
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.RED + "[MINES] Insufficient funds! Need " + economy.format(betAmount));
             return;
         }
 
@@ -158,11 +159,12 @@ public class MinesGame implements InventoryHolder {
         // Place mines randomly
         placeMines();
 
-        // Update GUI status instead of hidden messages
+        // GUI + chat feedback
         updateStatusDisplay(ChatColor.GREEN + "" + ChatColor.BOLD + "GAME STARTED!",
                           ChatColor.YELLOW + "Find gems, avoid mines!",
                           ChatColor.WHITE + "Bet: " + economy.format(betAmount) + " | Mines: " + mineCount);
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
+        player.sendMessage(ChatColor.GREEN + "[MINES] Game started! Bet: " + economy.format(betAmount) + " | Mines: " + mineCount);
 
         setupGrid();
         setupControls();
@@ -190,6 +192,9 @@ public class MinesGame implements InventoryHolder {
             player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "💥 BOOM!",
                            ChatColor.GRAY + "You hit a mine! -" + economy.format(betAmount), 10, 60, 20);
             player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 0.8f);
+            // Also send to chat
+            player.sendMessage(ChatColor.RED + "[MINES] " + ChatColor.BOLD + "💥 BOOM! " +
+                             ChatColor.GRAY + "You hit a mine! -" + economy.format(betAmount));
 
             Gambling.getLeaderboard().addLoss(player.getUniqueId(), betAmount);
 
@@ -202,11 +207,13 @@ public class MinesGame implements InventoryHolder {
             double multiplier = getCurrentMultiplier();
             double currentWinnings = betAmount * multiplier;
 
-            // Update GUI status instead of hidden message
+            // GUI + chat feedback
             updateStatusDisplay(ChatColor.GREEN + "💎 SAFE SQUARE!",
                               ChatColor.GOLD + "Current: " + economy.format(currentWinnings),
                               ChatColor.WHITE + "Multiplier: " + String.format("%.2fx", multiplier));
             player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
+            player.sendMessage(ChatColor.GREEN + "[MINES] 💎 Safe! Current: " + economy.format(currentWinnings) +
+                             " (" + String.format("%.2fx", multiplier) + ")");
 
             setupGrid();
             setupControls();
@@ -236,6 +243,9 @@ public class MinesGame implements InventoryHolder {
         player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "💰 CASHED OUT!",
                         ChatColor.GOLD + "+" + economy.format(profit) + " at " + String.format("%.2fx", multiplier), 10, 60, 20);
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
+        // Also send to chat
+        player.sendMessage(ChatColor.GREEN + "[MINES] " + ChatColor.BOLD + "💰 CASHED OUT! " +
+                         ChatColor.GOLD + "+" + economy.format(profit) + " at " + String.format("%.2fx", multiplier));
 
         Gambling.getLeaderboard().addWin(player.getUniqueId(), profit);
         

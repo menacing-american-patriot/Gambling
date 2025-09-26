@@ -109,19 +109,21 @@ public class SlotMachine implements InventoryHolder {
     public void spin() {
         // Check balance and withdraw before spinning
         if (economy.getBalance(player) < spinCost) {
-            // Update GUI status instead of hidden message
+            // GUI + chat feedback
             updateStatusDisplay(ChatColor.RED + "Insufficient Funds!",
                               ChatColor.GRAY + "Need: " + economy.format(spinCost),
                               ChatColor.YELLOW + "Current: " + economy.format(economy.getBalance(player)));
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.RED + "[SLOTS] Insufficient funds! Need " + economy.format(spinCost));
             return;
         }
         economy.withdrawPlayer(player, spinCost);
 
-        // Update GUI status instead of hidden message
+        // GUI + chat feedback
         updateStatusDisplay(ChatColor.YELLOW + "SPINNING...",
                           ChatColor.GRAY + "Bet: " + economy.format(spinCost),
                           ChatColor.GREEN + "Good luck!");
+        player.sendMessage(ChatColor.YELLOW + "[SLOTS] Spinning... Bet: " + economy.format(spinCost));
 
         // Start the animation using the Bukkit Scheduler
         new BukkitRunnable() {
@@ -196,11 +198,16 @@ public class SlotMachine implements InventoryHolder {
                 player.closeInventory();
                 player.sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "MEGA JACKPOT!",
                                ChatColor.YELLOW + "+" + economy.format(totalWinnings), 10, 80, 20);
+                // Also send to chat
+                player.sendMessage(ChatColor.GOLD + "[SLOTS] " + ChatColor.BOLD + "MEGA JACKPOT! " +
+                                 ChatColor.YELLOW + "+" + economy.format(totalWinnings));
             } else {
-                // Update GUI status for regular wins
+                // GUI + chat feedback for regular wins
                 updateStatusDisplay(ChatColor.GREEN + "" + ChatColor.BOLD + "YOU WON!",
                                   ChatColor.GOLD + "+" + economy.format(totalWinnings),
                                   ChatColor.WHITE + "Winning lines: " + winningLines);
+                player.sendMessage(ChatColor.GREEN + "[SLOTS] You won " + economy.format(totalWinnings) +
+                                 " on " + winningLines + " paylines!");
             }
 
             economy.depositPlayer(player, totalWinnings);
@@ -209,11 +216,12 @@ public class SlotMachine implements InventoryHolder {
         } else {
             Gambling.getLeaderboard().addLoss(player.getUniqueId(), spinCost);
 
-            // Update GUI status for losses
+            // GUI + chat feedback for losses
             updateStatusDisplay(ChatColor.RED + "" + ChatColor.BOLD + "NO WIN",
                               ChatColor.GRAY + "Better luck next time!",
                               ChatColor.DARK_GRAY + "Try again!");
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.RED + "[SLOTS] No winning combinations this spin");
         }
     }
 
