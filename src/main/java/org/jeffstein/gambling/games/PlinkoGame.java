@@ -31,22 +31,22 @@ public class PlinkoGame implements InventoryHolder {
     // Rows 1-4: Pegs (alternating pattern)
     // Row 5: Prize slots (slots 45-53)
     
-    // REAL Plinko multipliers - mostly losses like actual casino Plinko (8 slots)
-    // Most slots are under 1x (losses), only edges have decent payouts
-    // Expected value around 0.75 (25% house edge like real Plinko)
+    // REALISTIC Casino Plinko - Based on actual casino Plinko odds
+    // 6 out of 8 slots are LOSSES (under 1x) - this is how real casinos work
+    // Expected value: ~0.65 (35% house edge like real high-risk casino games)
     private final double[] prizeMultipliers = {
-        1000.0, 110.0, 41.0, 10.0, 0.2, 0.5, 3.0, 130.0
+        1000.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 130.0
     };
 
     private final Material[] prizeColors = {
-        Material.DIAMOND_BLOCK,    // 1000x (jackpot - extremely rare)
-        Material.EMERALD_BLOCK,    // 110x (very rare)
-        Material.GOLD_BLOCK,       // 41x (rare)
-        Material.IRON_BLOCK,       // 10x (uncommon)
-        Material.RED_CONCRETE,     // 0.2x (big loss - common)
-        Material.ORANGE_CONCRETE,  // 0.5x (lose half - common)
-        Material.LIME_CONCRETE,    // 3x (small win)
-        Material.EMERALD_BLOCK     // 130x (very rare)
+        Material.DIAMOND_BLOCK,    // 1000x (jackpot - 0.1% chance)
+        Material.RED_CONCRETE,     // 0.1x (lose 90% - very common)
+        Material.RED_CONCRETE,     // 0.2x (lose 80% - very common)
+        Material.ORANGE_CONCRETE,  // 0.3x (lose 70% - common)
+        Material.ORANGE_CONCRETE,  // 0.4x (lose 60% - common)
+        Material.YELLOW_CONCRETE,  // 0.5x (lose 50% - common)
+        Material.LIME_CONCRETE,    // 0.7x (lose 30% - uncommon)
+        Material.EMERALD_BLOCK     // 130x (big win - 0.5% chance)
     };
 
     public PlinkoGame(Gambling plugin, Player player) {
@@ -133,19 +133,28 @@ public class PlinkoGame implements InventoryHolder {
 
     public void dropBall(int dropPosition) {
         if (ballDropping) {
-            player.sendActionBar(ChatColor.RED + "Wait for the current ball to finish!");
+            // Update GUI to show status instead of hidden message
+            updateStatusDisplay(ChatColor.RED + "Ball in progress...", ChatColor.GRAY + "Wait for current ball to finish");
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return;
         }
 
         if (economy.getBalance(player) < betAmount) {
-            player.sendActionBar(ChatColor.RED + "Insufficient funds! Need " + economy.format(betAmount));
+            // Update GUI to show insufficient funds instead of hidden message
+            updateStatusDisplay(ChatColor.RED + "Insufficient Funds!",
+                              ChatColor.GRAY + "Need " + economy.format(betAmount),
+                              ChatColor.YELLOW + "Current: " + economy.format(economy.getBalance(player)));
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return;
         }
 
         economy.withdrawPlayer(player, betAmount);
         ballDropping = true;
-        
-        player.sendActionBar(ChatColor.YELLOW + "Ball dropping... Bet: " + economy.format(betAmount));
+
+        // Update GUI to show ball dropping status
+        updateStatusDisplay(ChatColor.YELLOW + "Ball Dropping...",
+                          ChatColor.GRAY + "Bet: " + economy.format(betAmount),
+                          ChatColor.GREEN + "Good luck!");
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
 
         // Simulate ball physics
@@ -176,27 +185,31 @@ public class PlinkoGame implements InventoryHolder {
                 // Show ball at current position
                 showBallAtPosition(currentPosition, currentRow);
 
-                // Calculate next position with realistic physics
-                // Ball tends to drift toward center due to gravity and peg layout
+                // Calculate next position with HEAVY center bias (like real casino Plinko)
+                // Real Plinko is designed so balls almost always end up in center loss slots
                 if (currentRow < totalRows - 1) {
                     double random = ThreadLocalRandom.current().nextDouble();
 
-                    // Add center bias - balls naturally drift toward middle
-                    double centerBias = 0.1; // 10% bias toward center
-                    int center = 4; // Middle position
+                    // STRONG center bias - casinos design Plinko to favor center losses
+                    double centerBias = 0.35; // 35% bias toward center (very strong)
+                    int center = 4; // Middle position (where the losses are)
 
-                    if (currentPosition < center && random < (0.5 + centerBias)) {
-                        // Bias toward center (move right if left of center)
-                        currentPosition = Math.min(8, currentPosition + 1);
-                    } else if (currentPosition > center && random < (0.5 + centerBias)) {
-                        // Bias toward center (move left if right of center)
+                    // Calculate distance from center - closer = stronger pull
+                    int distanceFromCenter = Math.abs(currentPosition - center);
+                    double actualBias = centerBias * (1.0 + distanceFromCenter * 0.1); // Stronger pull when further from center
+
+                    if (currentPosition < center && random < (0.5 + actualBias)) {
+                        // Strong bias toward center (move right if left of center)
+                        currentPosition = Math.min(7, currentPosition + 1);
+                    } else if (currentPosition > center && random < (0.5 + actualBias)) {
+                        // Strong bias toward center (move left if right of center)
                         currentPosition = Math.max(0, currentPosition - 1);
                     } else {
-                        // Normal random bounce
+                        // Normal random bounce (but less likely due to strong center bias)
                         if (ThreadLocalRandom.current().nextBoolean()) {
                             currentPosition = Math.max(0, currentPosition - 1);
                         } else {
-                            currentPosition = Math.min(8, currentPosition + 1);
+                            currentPosition = Math.min(7, currentPosition + 1);
                         }
                     }
                 }
@@ -261,29 +274,46 @@ public class PlinkoGame implements InventoryHolder {
     private void awardPrize(int prizeSlot) {
         double multiplier = prizeMultipliers[prizeSlot];
         double winnings = betAmount * multiplier;
-        
+        double profit = winnings - betAmount;
+
         economy.depositPlayer(player, winnings);
-        
-        // Show dramatic result
-        player.sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + String.format("%.0fx MULTIPLIER!", multiplier),
-                        ChatColor.GREEN + "+" + economy.format(winnings), 10, 60, 20);
-        
-        player.sendActionBar(ChatColor.GREEN + "You won " + economy.format(winnings) + 
-                           " with a " + String.format("%.0fx", multiplier) + " multiplier!");
-        
-        if (multiplier >= 100) {
-            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
-            Bukkit.broadcastMessage(ChatColor.GOLD + player.getName() + " won " + 
-                                  economy.format(winnings) + " in Plinko with a " + 
-                                  String.format("%.0fx", multiplier) + " multiplier!");
+
+        // Update GUI to show result instead of hidden messages
+        if (multiplier >= 1.0) {
+            // Win or break even
+            updateStatusDisplay(ChatColor.GREEN + "" + ChatColor.BOLD + String.format("%.1fx WIN!", multiplier),
+                              ChatColor.GOLD + "+" + economy.format(profit),
+                              ChatColor.WHITE + "Total: " + economy.format(winnings));
+
+            if (multiplier >= 100) {
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
+                // Close GUI for big wins so message is visible
+                player.closeInventory();
+                player.sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "PLINKO JACKPOT!",
+                               ChatColor.GREEN + "+" + economy.format(profit) + " at " + String.format("%.0fx", multiplier), 10, 80, 20);
+                Bukkit.broadcastMessage(ChatColor.GOLD + player.getName() + " won " +
+                                      economy.format(profit) + " in Plinko with a " +
+                                      String.format("%.0fx", multiplier) + " multiplier!");
+            } else {
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
+            }
+            Gambling.getLeaderboard().addWin(player.getUniqueId(), profit);
         } else {
-            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+            // Loss
+            updateStatusDisplay(ChatColor.RED + "" + ChatColor.BOLD + String.format("%.1fx LOSS", multiplier),
+                              ChatColor.GRAY + economy.format(profit),
+                              ChatColor.DARK_GRAY + "Better luck next time!");
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 0.8f);
+            Gambling.getLeaderboard().addLoss(player.getUniqueId(), Math.abs(profit));
         }
-        
-        Gambling.getLeaderboard().addWin(player.getUniqueId(), winnings - betAmount);
-        
+
         // Update prize displays
         createPrizeSlots();
+    }
+
+    private void updateStatusDisplay(String title, String... lore) {
+        // Update the status display item (slot 22) to show current status
+        gui.setItem(22, createGuiItem(Material.PAPER, title, lore));
     }
 
     public void adjustBet(double amount) {

@@ -4,6 +4,7 @@ import org.jeffstein.gambling.Gambling;
 import org.jeffstein.gambling.games.PlinkoGame;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,35 +43,34 @@ public class PlinkoListener implements Listener {
 
             // Handle drop positions (top row, slots 0-8)
             if (slot >= 0 && slot <= 8 && displayName.contains("Drop Here")) {
-                if (plinkoGame.isBallDropping()) {
-                    player.sendActionBar(ChatColor.RED + "Wait for the current ball to finish!");
-                    return;
-                }
-                
+                // The dropBall method now handles all feedback via GUI updates
                 plinkoGame.dropBall(slot);
-                player.sendActionBar(ChatColor.YELLOW + "Ball dropped from position " + (slot + 1) + "!");
+                // Play click sound for immediate feedback
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
             }
-            
+
             // Handle bet adjustments
             else if (slot == 18 && displayName.contains("-100")) {
                 plinkoGame.adjustBet(-100);
-                player.sendActionBar(ChatColor.YELLOW + "Bet decreased to " + 
-                                   org.jeffstein.gambling.Gambling.getEconomy().format(plinkoGame.getBetAmount()));
+                // Play click sound for immediate feedback
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
             }
             else if (slot == 26 && displayName.contains("+100")) {
                 plinkoGame.adjustBet(100);
-                player.sendActionBar(ChatColor.YELLOW + "Bet increased to " + 
-                                   org.jeffstein.gambling.Gambling.getEconomy().format(plinkoGame.getBetAmount()));
+                // Play click sound for immediate feedback
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
             }
-            
+
             // Handle back button
             else if (slot == 53 && displayName.contains("Back")) {
                 if (plinkoGame.isBallDropping()) {
-                    player.sendActionBar(ChatColor.RED + "Cannot leave while ball is dropping!");
+                    // Play error sound instead of hidden message
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                     return;
                 }
                 player.closeInventory();
-                player.sendActionBar(ChatColor.GRAY + "Thanks for playing Plinko!");
+                // Now message will be visible since GUI is closed
+                player.sendMessage(ChatColor.GRAY + "Thanks for playing Plinko!");
             }
         }
     }
