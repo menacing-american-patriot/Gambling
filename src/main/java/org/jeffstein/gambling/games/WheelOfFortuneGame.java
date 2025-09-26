@@ -139,41 +139,49 @@ public class WheelOfFortuneGame implements InventoryHolder {
 
     public boolean placeBet(String betType, double amount) {
         if (spinning) {
-            player.sendActionBar(ChatColor.RED + "Cannot bet while wheel is spinning!");
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return false;
         }
 
         if (economy.getBalance(player) < amount) {
-            player.sendActionBar(ChatColor.RED + "Insufficient funds!");
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return false;
         }
 
         economy.withdrawPlayer(player, amount);
         playerBets.put(betType, playerBets.getOrDefault(betType, 0.0) + amount);
-        
-        player.sendActionBar(ChatColor.GREEN + "Bet placed: " + economy.format(amount) + " on " + betType);
+
+        // Use sound feedback for successful bet
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
         setupBettingControls(); // Update bet display
         return true;
     }
 
     public void spinWheel() {
         if (spinning) {
-            player.sendActionBar(ChatColor.RED + "Wheel is already spinning!");
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return;
         }
 
         if (playerBets.isEmpty()) {
-            player.sendActionBar(ChatColor.RED + "Place a bet first!");
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return;
         }
 
         spinning = true;
-        player.sendActionBar(ChatColor.YELLOW + "Spinning the wheel...");
-        
+        // Update GUI status instead of hidden message
+        updateStatusDisplay(ChatColor.YELLOW + "SPINNING...",
+                          ChatColor.GRAY + "Wheel is spinning...",
+                          ChatColor.GREEN + "Good luck!");
+
         // Determine winning segment
         int winningIndex = ThreadLocalRandom.current().nextInt(wheelSegments.length);
         String winningSegment = wheelSegments[winningIndex];
-        
+
         // Animate the spin
         animateSpin(winningIndex, winningSegment);
     }
@@ -284,18 +292,28 @@ public class WheelOfFortuneGame implements InventoryHolder {
         // Show results
         if (won) {
             economy.depositPlayer(player, totalWinnings);
-            player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "YOU WON!",
-                           ChatColor.GOLD + "+" + economy.format(totalWinnings) + " on " + winningSegment, 10, 60, 20);
-            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
-            
+            double profit = totalWinnings - getTotalBets();
+
             if (winningSegment.equals("JACKPOT")) {
+                // Close GUI for jackpot so message is visible
+                player.closeInventory();
+                player.sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "JACKPOT!",
+                               ChatColor.YELLOW + "+" + economy.format(profit) + " on " + winningSegment, 10, 80, 20);
                 Bukkit.broadcastMessage(ChatColor.GOLD + player.getName() + " won the Wheel of Fortune JACKPOT!");
+            } else {
+                // Update GUI status for regular wins
+                updateStatusDisplay(ChatColor.GREEN + "" + ChatColor.BOLD + "YOU WON!",
+                                  ChatColor.GOLD + "+" + economy.format(profit),
+                                  ChatColor.WHITE + "Landed on: " + winningSegment);
             }
-            
-            Gambling.getLeaderboard().addWin(player.getUniqueId(), totalWinnings - getTotalBets());
+
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
+            Gambling.getLeaderboard().addWin(player.getUniqueId(), profit);
         } else {
-            player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "YOU LOST",
-                           ChatColor.GRAY + "Landed on " + winningSegment, 10, 40, 10);
+            // Update GUI status for losses
+            updateStatusDisplay(ChatColor.RED + "" + ChatColor.BOLD + "YOU LOST",
+                              ChatColor.GRAY + "Landed on: " + winningSegment,
+                              ChatColor.DARK_GRAY + "Better luck next time!");
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             Gambling.getLeaderboard().addLoss(player.getUniqueId(), getTotalBets());
         }
@@ -334,5 +352,10 @@ public class WheelOfFortuneGame implements InventoryHolder {
 
     public boolean isSpinning() {
         return spinning;
+    }
+
+    private void updateStatusDisplay(String title, String... lore) {
+        // Update the status display item (slot 50) to show current status
+        gui.setItem(50, createGuiItem(Material.BOOK, title, lore));
     }
 }

@@ -58,85 +58,94 @@ public class CrashGame {
     
     public boolean placeBet(Player player, double amount) {
         if (!bettingPhase) {
-            player.sendActionBar(ChatColor.RED + "Betting is closed! Wait for next round.");
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return false;
         }
-        
+
         if (amount < MIN_BET || amount > MAX_BET) {
-            player.sendActionBar(ChatColor.RED + "Bet must be between " + 
-                Gambling.getEconomy().format(MIN_BET) + " and " + Gambling.getEconomy().format(MAX_BET));
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return false;
         }
-        
+
         Economy economy = Gambling.getEconomy();
         if (economy.getBalance(player) < amount) {
-            player.sendActionBar(ChatColor.RED + "Insufficient funds!");
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return false;
         }
-        
+
         // Remove previous bet if exists
         if (playerBets.containsKey(player.getUniqueId())) {
             double previousBet = playerBets.get(player.getUniqueId());
             economy.depositPlayer(player, previousBet);
         }
-        
+
         economy.withdrawPlayer(player, amount);
         playerBets.put(player.getUniqueId(), amount);
-        player.sendActionBar(ChatColor.GREEN + "Bet placed: " + economy.format(amount));
+        // Use sound feedback for successful bet
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
-        
+
         return true;
     }
     
     public boolean setAutoCashout(Player player, double multiplier) {
         if (!playerBets.containsKey(player.getUniqueId())) {
-            player.sendActionBar(ChatColor.RED + "Place a bet first!");
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return false;
         }
-        
+
         if (multiplier < 1.01 || multiplier > 1000.0) {
-            player.sendActionBar(ChatColor.RED + "Auto-cashout must be between 1.01x and 1000x");
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return false;
         }
-        
+
         playerAutoCashout.put(player.getUniqueId(), multiplier);
-        player.sendActionBar(ChatColor.YELLOW + "Auto-cashout set at " + String.format("%.2fx", multiplier));
+        // Use sound feedback for successful auto-cashout setting
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
         return true;
     }
     
     public boolean cashOut(Player player) {
         UUID playerId = player.getUniqueId();
-        
+
         if (!gameRunning) {
-            player.sendActionBar(ChatColor.RED + "No active game to cash out from!");
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return false;
         }
-        
+
         if (!playerBets.containsKey(playerId)) {
-            player.sendActionBar(ChatColor.RED + "You don't have an active bet!");
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return false;
         }
-        
+
         if (cashedOutPlayers.contains(playerId)) {
-            player.sendActionBar(ChatColor.RED + "You already cashed out!");
+            // Use sound feedback instead of hidden message
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return false;
         }
-        
+
         double betAmount = playerBets.get(playerId);
         double winnings = betAmount * currentMultiplier;
-        
+        double profit = winnings - betAmount;
+
         Economy economy = Gambling.getEconomy();
         economy.depositPlayer(player, winnings);
         cashedOutPlayers.add(playerId);
-        
-        player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "CASHED OUT!", 
-                        ChatColor.GOLD + "+" + economy.format(winnings) + " at " + String.format("%.2fx", currentMultiplier), 
-                        5, 30, 10);
-        player.sendActionBar(ChatColor.GREEN + "Cashed out at " + String.format("%.2fx", currentMultiplier) + 
-                           " for " + economy.format(winnings));
+
+        // For cash outs, close GUI first so message is visible
+        player.closeInventory();
+        player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "CASHED OUT!",
+                        ChatColor.GOLD + "+" + economy.format(profit) + " at " + String.format("%.2fx", currentMultiplier),
+                        10, 60, 20);
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
-        
-        Gambling.getLeaderboard().addWin(playerId, winnings - betAmount);
+
+        Gambling.getLeaderboard().addWin(playerId, profit);
         return true;
     }
     
@@ -197,9 +206,11 @@ public class CrashGame {
                 Player player = Bukkit.getPlayer(playerId);
                 if (player != null) {
                     double lostAmount = entry.getValue();
-                    player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "CRASHED!", 
-                                   ChatColor.GRAY + "-" + Gambling.getEconomy().format(lostAmount) + 
-                                   " at " + String.format("%.2fx", crashPoint), 5, 40, 15);
+                    // For crashes, close GUI first so message is visible
+                    player.closeInventory();
+                    player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "CRASHED!",
+                                   ChatColor.GRAY + "-" + Gambling.getEconomy().format(lostAmount) +
+                                   " at " + String.format("%.2fx", crashPoint), 10, 60, 20);
                     player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 0.8f);
                     Gambling.getLeaderboard().addLoss(playerId, lostAmount);
                 }
@@ -247,19 +258,9 @@ public class CrashGame {
     }
     
     private void updateAllPlayers() {
-        String multiplierText = String.format("%.2fx", currentMultiplier);
-        for (UUID playerId : playerBets.keySet()) {
-            Player player = Bukkit.getPlayer(playerId);
-            if (player != null) {
-                if (cashedOutPlayers.contains(playerId)) {
-                    player.sendActionBar(ChatColor.GRAY + "Cashed out | Current: " + ChatColor.WHITE + multiplierText);
-                } else {
-                    double potentialWin = playerBets.get(playerId) * currentMultiplier;
-                    player.sendActionBar(ChatColor.GOLD + multiplierText + ChatColor.GRAY + " | Potential: " + 
-                                       ChatColor.GREEN + Gambling.getEconomy().format(potentialWin));
-                }
-            }
-        }
+        // Remove broken action bar updates - GUI already shows multiplier in real-time
+        // The CrashGUI.updateDisplay() method handles all visual updates
+        // No need for hidden action bar messages that players can't see
     }
     
     private void broadcastToPlayers(String message) {

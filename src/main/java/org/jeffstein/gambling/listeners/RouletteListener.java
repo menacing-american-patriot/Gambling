@@ -55,14 +55,15 @@ public class RouletteListener implements Listener {
             if (displayName.equals(ChatColor.GREEN + "" + ChatColor.BOLD + "SPIN")) {
                 RouletteGame game = games.get(player.getUniqueId());
                 if (game == null) {
-                    player.sendActionBar(ChatColor.RED + "No game found. Please place a bet first.");
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                     return;
                 }
                 if (game.getBets().isEmpty()) {
-                    player.sendActionBar(ChatColor.RED + "Please place a bet first.");
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                     return;
                 }
-                player.sendActionBar(ChatColor.YELLOW + "Starting roulette spin...");
+                // Sound feedback for spin start
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
                 startSpin(player, game, rouletteGUI);
             } else if (displayName.equals(ChatColor.GREEN + "Spin Again")) {
                 RouletteGame oldGame = games.get(player.getUniqueId());
@@ -185,15 +186,18 @@ public class RouletteListener implements Listener {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
+                            // Close GUI first so messages are visible
+                            player.closeInventory();
+
                             if (finalTotalPayout > 0) {
                                 player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "YOU WON!",
-                                               ChatColor.GOLD + "+" + Gambling.getEconomy().format(finalTotalPayout), 10, 40, 10);
-                                player.sendActionBar(ChatColor.GREEN + "Congratulations! You won " + Gambling.getEconomy().format(finalTotalPayout));
+                                               ChatColor.GOLD + "+" + Gambling.getEconomy().format(finalTotalPayout), 10, 60, 20);
+                                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
                                 Gambling.getLeaderboard().addWin(player.getUniqueId(), finalTotalPayout);
                             } else {
                                 player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "YOU LOST",
-                                               ChatColor.GRAY + "Better luck next time!", 10, 40, 10);
-                                player.sendActionBar(ChatColor.RED + "No winning bets this round");
+                                               ChatColor.GRAY + "Better luck next time!", 10, 60, 20);
+                                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                                 Gambling.getLeaderboard().addLoss(player.getUniqueId(), totalLoss);
                             }
                         }

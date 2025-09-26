@@ -109,12 +109,19 @@ public class SlotMachine implements InventoryHolder {
     public void spin() {
         // Check balance and withdraw before spinning
         if (economy.getBalance(player) < spinCost) {
-            player.sendActionBar(ChatColor.RED + "Insufficient funds! Need " + economy.format(spinCost));
+            // Update GUI status instead of hidden message
+            updateStatusDisplay(ChatColor.RED + "Insufficient Funds!",
+                              ChatColor.GRAY + "Need: " + economy.format(spinCost),
+                              ChatColor.YELLOW + "Current: " + economy.format(economy.getBalance(player)));
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return;
         }
         economy.withdrawPlayer(player, spinCost);
-        player.sendActionBar(ChatColor.YELLOW + "Spinning... Bet: " + economy.format(spinCost));
+
+        // Update GUI status instead of hidden message
+        updateStatusDisplay(ChatColor.YELLOW + "SPINNING...",
+                          ChatColor.GRAY + "Bet: " + economy.format(spinCost),
+                          ChatColor.GREEN + "Good luck!");
 
         // Start the animation using the Bukkit Scheduler
         new BukkitRunnable() {
@@ -184,22 +191,28 @@ public class SlotMachine implements InventoryHolder {
                 totalWinnings += Gambling.getJackpot().getJackpot();
                 Gambling.getJackpot().resetJackpot();
                 Bukkit.broadcastMessage(ChatColor.GOLD + player.getName() + " has won the MEGA JACKPOT of " + economy.format(totalWinnings) + "!");
+
+                // Close GUI for jackpot so message is visible
+                player.closeInventory();
                 player.sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "MEGA JACKPOT!",
-                               ChatColor.YELLOW + "+" + economy.format(totalWinnings), 10, 60, 20);
+                               ChatColor.YELLOW + "+" + economy.format(totalWinnings), 10, 80, 20);
             } else {
-                player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "YOU WON!",
-                               ChatColor.GOLD + "+" + economy.format(totalWinnings) + " (" + winningLines + " lines)", 10, 40, 10);
+                // Update GUI status for regular wins
+                updateStatusDisplay(ChatColor.GREEN + "" + ChatColor.BOLD + "YOU WON!",
+                                  ChatColor.GOLD + "+" + economy.format(totalWinnings),
+                                  ChatColor.WHITE + "Winning lines: " + winningLines);
             }
 
             economy.depositPlayer(player, totalWinnings);
-            Gambling.getLeaderboard().addWin(player.getUniqueId(), totalWinnings);
-            player.sendActionBar(ChatColor.GREEN + "Congratulations! You won " + economy.format(totalWinnings) + " on " + winningLines + " paylines!");
+            Gambling.getLeaderboard().addWin(player.getUniqueId(), totalWinnings - spinCost);
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         } else {
             Gambling.getLeaderboard().addLoss(player.getUniqueId(), spinCost);
-            player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "NO WIN",
-                           ChatColor.GRAY + "Better luck next time!", 10, 40, 10);
-            player.sendActionBar(ChatColor.RED + "No winning combinations this spin");
+
+            // Update GUI status for losses
+            updateStatusDisplay(ChatColor.RED + "" + ChatColor.BOLD + "NO WIN",
+                              ChatColor.GRAY + "Better luck next time!",
+                              ChatColor.DARK_GRAY + "Try again!");
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
         }
     }
@@ -285,5 +298,10 @@ public class SlotMachine implements InventoryHolder {
     @Override
     public Inventory getInventory() {
         return gui;
+    }
+
+    private void updateStatusDisplay(String title, String... lore) {
+        // Update the status display item (slot 4) to show current status
+        gui.setItem(4, createGuiItem(Material.FIREWORK_ROCKET, title, lore));
     }
 }
