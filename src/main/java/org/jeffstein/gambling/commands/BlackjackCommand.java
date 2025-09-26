@@ -69,10 +69,14 @@ public class BlackjackCommand implements CommandExecutor {
                 return true;
             }
 
-            BlackjackGame game = new BlackjackGame(plugin, player, bet);
+            BlackjackGame game = new BlackjackGame(plugin, player, bet, games);
             games.put(playerId, game);
             game.start();
         }
         return true;
+    }
+
+    public Map<UUID, BlackjackGame> getGames() {
+        return games;
     }
 }

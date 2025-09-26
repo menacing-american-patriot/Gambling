@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class BlackjackGame {
 
@@ -17,13 +19,24 @@ public class BlackjackGame {
     private final Deck deck;
     private final List<Card> playerHand = new ArrayList<>();
     private final List<Card> dealerHand = new ArrayList<>();
+    private final Map<UUID, BlackjackGame> games;
+    private boolean gameEnded = false;
 
-    public BlackjackGame(Gambling plugin, Player player, double bet) {
+    public BlackjackGame(Gambling plugin, Player player, double bet, Map<UUID, BlackjackGame> games) {
         this.plugin = plugin;
         this.player = player;
         this.bet = bet;
         this.economy = Gambling.getEconomy();
         this.deck = new Deck();
+        this.games = games;
+    }
+
+    public List<Card> getPlayerHand() {
+        return playerHand;
+    }
+
+    public List<Card> getDealerHand() {
+        return dealerHand;
     }
 
     public void start() {
@@ -33,8 +46,8 @@ public class BlackjackGame {
         dealerHand.add(deck.deal());
         dealerHand.add(deck.deal());
 
-        player.sendMessage(ChatColor.GREEN + "Your hand: " + getHandString(playerHand) + " (" + getHandValue(playerHand) + ")");
-        player.sendMessage(ChatColor.GREEN + "Dealer's hand: " + dealerHand.get(0) + " and [HIDDEN]");
+        player.sendMessage(ChatColor.AQUA + "Your hand: " + getHandString(playerHand) + " (" + getHandValue(playerHand) + ")");
+        player.sendMessage(ChatColor.GOLD + "Dealer's hand: " + dealerHand.get(0) + " and [HIDDEN]");
 
         if (getHandValue(playerHand) == 21) {
             stand();
@@ -42,20 +55,30 @@ public class BlackjackGame {
     }
 
     public void hit() {
+        if (gameEnded) {
+            player.sendMessage("The game is over.");
+            return;
+        }
         playerHand.add(deck.deal());
         player.sendMessage(ChatColor.GREEN + "Your hand: " + getHandString(playerHand) + " (" + getHandValue(playerHand) + ")");
 
         if (getHandValue(playerHand) > 21) {
             endGame(false);
+        } else if (getHandValue(playerHand) == 21) {
+            stand();
         }
     }
 
     public void stand() {
-        player.sendMessage(ChatColor.GREEN + "Dealer's hand: " + getHandString(dealerHand) + " (" + getHandValue(dealerHand) + ")");
+        if (gameEnded) {
+            player.sendMessage("The game is over.");
+            return;
+        }
+        player.sendMessage(ChatColor.GOLD + "Dealer's hand: " + getHandString(dealerHand) + " (" + getHandValue(dealerHand) + ")");
 
         while (getHandValue(dealerHand) < 17) {
             dealerHand.add(deck.deal());
-            player.sendMessage(ChatColor.GREEN + "Dealer hits. Dealer's hand: " + getHandString(dealerHand) + " (" + getHandValue(dealerHand) + ")");
+            player.sendMessage(ChatColor.GOLD + "Dealer hits. Dealer's hand: " + getHandString(dealerHand) + " (" + getHandValue(dealerHand) + ")");
         }
 
         if (getHandValue(dealerHand) > 21) {
@@ -70,17 +93,20 @@ public class BlackjackGame {
     }
 
     private void endGame(Boolean playerWon) {
+        if (gameEnded) return;
+        gameEnded = true;
         if (playerWon == null) {
             player.sendMessage(ChatColor.YELLOW + "Push! Your bet has been returned.");
             economy.depositPlayer(player, bet);
         } else if (playerWon) {
-            player.sendMessage(ChatColor.GOLD + "You win! You won " + economy.format(bet * 2));
+            player.sendMessage(ChatColor.GREEN + "You win! You won " + economy.format(bet * 2));
             economy.depositPlayer(player, bet * 2);
             Gambling.getLeaderboard().addWin(player.getUniqueId(), bet);
         } else {
-            player.sendMessage(ChatColor.RED + "You lose! You lost " + economy.format(bet));
+            player.sendMessage(ChatColor.DARK_RED + "You lose! You lost " + economy.format(bet));
             Gambling.getLeaderboard().addLoss(player.getUniqueId(), bet);
         }
+        games.remove(player.getUniqueId());
     }
 
     private String getHandString(List<Card> hand) {

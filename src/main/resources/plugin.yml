@@ -1,5 +1,5 @@
 name: Gambling
-version: '1.0-SNAPSHOT'
+version: '1.1.2'
 main: org.jeffstein.gambling.Gambling
 api-version: '1.21'
 load: STARTUP
@@ -11,12 +11,14 @@ commands:
   coinflip:
     description: Flip a coin for money!
     usage: /coinflip <amount>
+    aliases: [cf]
   slots:
     description: Play the slot machine!
     usage: /slots <bet>
   blackjack:
     description: Play a game of blackjack!
     usage: /blackjack <bet>
+    aliases: [bj]
   daily:
     description: Claim your daily reward.
     usage: /daily
@@ -29,3 +31,16 @@ commands:
   poker:
     description: Play poker with other players.
     usage: /poker <join|leave|bet|check|fold>
+    aliases: [pk]
+  baccarat:
+    description: Play a game of baccarat!
+    usage: /baccarat
+    aliases: [bcc, bac]
+  roulette:
+    description: Play a game of roulette!
+    usage: /roulette
+    aliases: [rou, rlt]
+  blackjackgui:
+    description: Play a game of blackjack with a GUI!
+    usage: /blackjackgui
+    aliases: [bjg]

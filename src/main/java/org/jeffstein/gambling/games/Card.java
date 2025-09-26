@@ -1,5 +1,7 @@
 package org.jeffstein.gambling.games;
 
+import org.bukkit.Material;
+
 public class Card {
 
     private final Suit suit;
@@ -25,6 +27,14 @@ public class Card {
     @Override
     public String toString() {
         return rank + " of " + suit;
+    }
+
+    public Material getMaterial() {
+        return Material.PAPER;
+    }
+
+    public int getCustomModelData() {
+        return suit.ordinal() * 13 + rank.ordinal();
     }
 
     public enum Suit {

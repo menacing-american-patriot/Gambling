@@ -5,6 +5,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jeffstein.gambling.commands.*;
+import org.jeffstein.gambling.listeners.BlackjackGUIListener;
+import org.jeffstein.gambling.listeners.RouletteListener;
+import org.jeffstein.gambling.listeners.BaccaratListener;
+import org.jeffstein.gambling.listeners.SlotsListener;
 import org.jeffstein.gambling.listeners.SlotsListener;
 
 import java.util.logging.Logger;
@@ -26,14 +30,22 @@ public final class Gambling extends JavaPlugin {
         leaderboard = new Leaderboard(this);
         jackpot = new Jackpot(this);
         log.info(String.format("[%s] has been enabled!", getDescription().getName()));
+        BlackjackCommand blackjackCommand = new BlackjackCommand(this);
+        getCommand("blackjack").setExecutor(blackjackCommand);
+        getCommand("blackjack").setTabCompleter(new BlackjackTabCompleter(blackjackCommand.getGames()));
         getCommand("coinflip").setExecutor(new CoinflipCommand());
         getCommand("slots").setExecutor(new SlotsCommand(this));
-        getCommand("blackjack").setExecutor(new BlackjackCommand(this));
         getCommand("daily").setExecutor(new DailyCommand(this));
         getCommand("leaderboard").setExecutor(new LeaderboardCommand());
         getCommand("jackpot").setExecutor(new JackpotCommand());
         getCommand("poker").setExecutor(new PokerCommand(this));
+        getCommand("baccarat").setExecutor(new BaccaratCommand(this));
+        getCommand("roulette").setExecutor(new RouletteCommand(this));
+        getCommand("blackjackgui").setExecutor(new BlackjackGUICommand(this));
         getServer().getPluginManager().registerEvents(new SlotsListener(this), this);
+        getServer().getPluginManager().registerEvents(new BaccaratListener(this), this);
+        getServer().getPluginManager().registerEvents(new RouletteListener(this), this);
+        getServer().getPluginManager().registerEvents(new BlackjackGUIListener(this), this);
     }
 
     @Override
