@@ -55,11 +55,11 @@ public class RouletteListener implements Listener {
             if (displayName.equals(ChatColor.GREEN + "" + ChatColor.BOLD + "SPIN")) {
                 RouletteGame game = games.get(player.getUniqueId());
                 if (game == null) {
-                    player.sendMessage(ChatColor.RED + "No game found. Please place a bet first.");
+                    player.sendActionBar(ChatColor.RED + "No game found. Please place a bet first.");
                     return;
                 }
                 if (game.getBets().isEmpty()) {
-                    player.sendMessage(ChatColor.RED + "Please place a bet first.");
+                    player.sendActionBar(ChatColor.RED + "Please place a bet first.");
                     return;
                 }
                 player.sendActionBar(ChatColor.YELLOW + "Starting roulette spin...");
@@ -67,7 +67,7 @@ public class RouletteListener implements Listener {
             } else if (displayName.equals(ChatColor.GREEN + "Spin Again")) {
                 RouletteGame oldGame = games.get(player.getUniqueId());
                 if (oldGame == null || oldGame.getBets().isEmpty()) {
-                    player.sendMessage("No previous bet found.");
+                    player.sendActionBar(ChatColor.RED + "No previous bet found.");
                     return;
                 }
 
@@ -105,7 +105,7 @@ public class RouletteListener implements Listener {
             } else if (displayName.equals(ChatColor.GREEN + "" + ChatColor.BOLD + "SPIN")) {
                 RouletteGame game = games.get(player.getUniqueId());
                 if (game == null || game.getBets().isEmpty()) {
-                    player.sendMessage("Please place a bet first.");
+                    player.sendActionBar(ChatColor.RED + "Please place a bet first.");
                     return;
                 }
                 double totalBet = game.getBets().values().stream().mapToDouble(Double::doubleValue).sum();
@@ -124,7 +124,7 @@ public class RouletteListener implements Listener {
                     game.placeBet(betType, currentBet);
                     player.sendActionBar(ChatColor.GREEN + "Bet placed: " + Gambling.getEconomy().format(currentBet) + " on " + betType);
                 } else {
-                    player.sendMessage(ChatColor.RED + "You don't have enough money to place that bet.");
+                    player.sendActionBar(ChatColor.RED + "You don't have enough money to place that bet.");
                 }
             }
         }
@@ -212,13 +212,19 @@ public class RouletteListener implements Listener {
                             newItem.setType(spinMaterials[ticks % spinMaterials.length]);
                         } else {
                             // Get the original color of the number
-                            int number = Integer.parseInt(ChatColor.stripColor(item.getItemMeta().getDisplayName()));
-                            if (number == 0) {
-                                newItem.setType(Material.GREEN_CONCRETE);
-                            } else if (game.isRed(number)) {
-                                newItem.setType(Material.RED_CONCRETE);
-                            } else {
-                                newItem.setType(Material.BLACK_CONCRETE);
+                            try {
+                                String cleanName = ChatColor.stripColor(item.getItemMeta().getDisplayName());
+                                int number = Integer.parseInt(cleanName);
+                                if (number == 0) {
+                                    newItem.setType(Material.GREEN_CONCRETE);
+                                } else if (game.isRed(number)) {
+                                    newItem.setType(Material.RED_CONCRETE);
+                                } else {
+                                    newItem.setType(Material.BLACK_CONCRETE);
+                                }
+                            } catch (NumberFormatException e) {
+                                // If we can't parse the number, just keep the original material
+                                // This happens for non-number slots
                             }
                         }
                         gui.getInventory().setItem(border[i], newItem); // Set the modified item back into the inventory

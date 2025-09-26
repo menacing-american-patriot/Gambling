@@ -40,7 +40,7 @@ public class BlackjackGUIListener implements Listener {
             int slot = event.getRawSlot();
 
             if (!games.containsKey(playerId)) {
-                player.sendMessage(ChatColor.RED + "No active game found. Please start a new game from the betting menu.");
+                player.sendActionBar(ChatColor.RED + "No active game found. Please start a new game from the betting menu.");
                 player.closeInventory();
                 return;
             }

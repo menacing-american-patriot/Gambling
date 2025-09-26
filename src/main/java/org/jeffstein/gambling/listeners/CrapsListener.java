@@ -50,38 +50,38 @@ public class CrapsListener implements Listener {
             if (displayName.equals(ChatColor.GREEN + "" + ChatColor.BOLD + "ROLL")) {
                 int[] dice = game.rollDice();
                 int total = dice[0] + dice[1];
-                player.sendMessage("You rolled a " + dice[0] + " and a " + dice[1] + " for a total of " + total);
+                player.sendActionBar(ChatColor.YELLOW + "You rolled " + dice[0] + " and " + dice[1] + " for a total of " + total);
 
                 double payout = 0;
                 if (game.getGameState() == CrapsGame.GameState.COME_OUT) {
                     if (total == 7 || total == 11) {
                         payout = game.getBets().getOrDefault("Pass Line", 0.0) * 2;
-                        player.sendMessage(ChatColor.GREEN + "You win!");
+                        player.sendActionBar(ChatColor.GREEN + "You win!");
                         games.remove(player.getUniqueId());
                     } else if (total == 2 || total == 3 || total == 12) {
                         payout = game.getBets().getOrDefault("Don't Pass Line", 0.0) * 2;
-                        player.sendMessage(ChatColor.RED + "You lose!");
+                        player.sendActionBar(ChatColor.RED + "You lose!");
                         games.remove(player.getUniqueId());
                     } else {
                         game.setPoint(total);
                         game.setGameState(CrapsGame.GameState.POINT);
-                        player.sendMessage("The point is now " + total);
+                        player.sendActionBar(ChatColor.YELLOW + "The point is now " + total);
                     }
                 } else { // Point phase
                     if (total == game.getPoint()) {
                         payout = game.getBets().getOrDefault("Pass Line", 0.0) * 2;
-                        player.sendMessage(ChatColor.GREEN + "You win!");
+                        player.sendActionBar(ChatColor.GREEN + "You win!");
                         games.remove(player.getUniqueId());
                     } else if (total == 7) {
                         payout = game.getBets().getOrDefault("Don't Pass Line", 0.0) * 2;
-                        player.sendMessage(ChatColor.RED + "You lose!");
+                        player.sendActionBar(ChatColor.RED + "You lose!");
                         games.remove(player.getUniqueId());
                     }
                 }
 
                 if (payout > 0) {
                     Gambling.getEconomy().depositPlayer(player, payout);
-                    player.sendMessage(ChatColor.GREEN + "You won " + Gambling.getEconomy().format(payout));
+                    player.sendActionBar(ChatColor.GREEN + "You won " + Gambling.getEconomy().format(payout));
                 }
                 ((CrapsGUI) holder).update(game);
             }
@@ -106,7 +106,7 @@ public class CrapsListener implements Listener {
             } else if (displayName.equals(ChatColor.GREEN + "" + ChatColor.BOLD + "ROLL")) {
                 CrapsGame game = games.get(player.getUniqueId());
                 if (game == null || game.getBets().isEmpty()) {
-                    player.sendMessage("Please place a bet first.");
+                    player.sendActionBar(ChatColor.RED + "Please place a bet first.");
                     return;
                 }
                 CrapsGUI crapsGUI = new CrapsGUI(plugin, player);
@@ -117,9 +117,9 @@ public class CrapsListener implements Listener {
                 if (Gambling.getEconomy().getBalance(player) >= currentBet) {
                     Gambling.getEconomy().withdrawPlayer(player, currentBet);
                     game.placeBet(displayName, currentBet);
-                    player.sendMessage("You placed a bet of " + Gambling.getEconomy().format(currentBet) + " on " + displayName);
+                    player.sendActionBar(ChatColor.GREEN + "Bet placed: " + Gambling.getEconomy().format(currentBet) + " on " + displayName);
                 } else {
-                    player.sendMessage(ChatColor.RED + "You don't have enough money to place that bet.");
+                    player.sendActionBar(ChatColor.RED + "You don't have enough money to place that bet.");
                 }
             }
         }

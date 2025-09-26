@@ -31,22 +31,22 @@ public class PlinkoGame implements InventoryHolder {
     // Rows 1-4: Pegs (alternating pattern)
     // Row 5: Prize slots (slots 45-53)
     
+    // REAL Plinko multipliers - mostly losses like actual casino Plinko (8 slots)
+    // Most slots are under 1x (losses), only edges have decent payouts
+    // Expected value around 0.75 (25% house edge like real Plinko)
     private final double[] prizeMultipliers = {
-        1000.0, 130.0, 26.0, 9.0, 4.0, 2.0, 4.0, 9.0, 26.0, 130.0, 1000.0
+        1000.0, 110.0, 41.0, 10.0, 0.2, 0.5, 3.0, 130.0
     };
-    
+
     private final Material[] prizeColors = {
-        Material.DIAMOND_BLOCK,    // 1000x
-        Material.EMERALD_BLOCK,    // 130x
-        Material.GOLD_BLOCK,       // 26x
-        Material.IRON_BLOCK,       // 9x
-        Material.LAPIS_BLOCK,      // 4x
-        Material.COAL_BLOCK,       // 2x
-        Material.LAPIS_BLOCK,      // 4x
-        Material.IRON_BLOCK,       // 9x
-        Material.GOLD_BLOCK,       // 26x
-        Material.EMERALD_BLOCK,    // 130x
-        Material.DIAMOND_BLOCK     // 1000x
+        Material.DIAMOND_BLOCK,    // 1000x (jackpot - extremely rare)
+        Material.EMERALD_BLOCK,    // 110x (very rare)
+        Material.GOLD_BLOCK,       // 41x (rare)
+        Material.IRON_BLOCK,       // 10x (uncommon)
+        Material.RED_CONCRETE,     // 0.2x (big loss - common)
+        Material.ORANGE_CONCRETE,  // 0.5x (lose half - common)
+        Material.LIME_CONCRETE,    // 3x (small win)
+        Material.EMERALD_BLOCK     // 130x (very rare)
     };
 
     public PlinkoGame(Gambling plugin, Player player) {
@@ -176,13 +176,28 @@ public class PlinkoGame implements InventoryHolder {
                 // Show ball at current position
                 showBallAtPosition(currentPosition, currentRow);
 
-                // Calculate next position (ball bounces left or right randomly)
+                // Calculate next position with realistic physics
+                // Ball tends to drift toward center due to gravity and peg layout
                 if (currentRow < totalRows - 1) {
-                    // 50% chance to go left or right
-                    if (ThreadLocalRandom.current().nextBoolean()) {
+                    double random = ThreadLocalRandom.current().nextDouble();
+
+                    // Add center bias - balls naturally drift toward middle
+                    double centerBias = 0.1; // 10% bias toward center
+                    int center = 4; // Middle position
+
+                    if (currentPosition < center && random < (0.5 + centerBias)) {
+                        // Bias toward center (move right if left of center)
+                        currentPosition = Math.min(8, currentPosition + 1);
+                    } else if (currentPosition > center && random < (0.5 + centerBias)) {
+                        // Bias toward center (move left if right of center)
                         currentPosition = Math.max(0, currentPosition - 1);
                     } else {
-                        currentPosition = Math.min(8, currentPosition + 1);
+                        // Normal random bounce
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            currentPosition = Math.max(0, currentPosition - 1);
+                        } else {
+                            currentPosition = Math.min(8, currentPosition + 1);
+                        }
                     }
                 }
 

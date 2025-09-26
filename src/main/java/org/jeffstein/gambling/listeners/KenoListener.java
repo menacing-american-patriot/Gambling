@@ -67,13 +67,13 @@ public class KenoListener implements Listener {
             // Start Game
             if (slot == 48) {
                 if (gui.getSelectedNumbers().isEmpty()) {
-                    player.sendMessage(ChatColor.RED + "You must select at least one number.");
+                    player.sendActionBar(ChatColor.RED + "You must select at least one number.");
                     return;
                 }
                 double betAmount = betAmounts.getOrDefault(playerId, 100.0);
                 Economy economy = Gambling.getEconomy();
                 if (economy.getBalance(player) < betAmount) {
-                    player.sendMessage(ChatColor.RED + "You don't have enough money.");
+                    player.sendActionBar(ChatColor.RED + "You don't have enough money.");
                     return;
                 }
                 economy.withdrawPlayer(player, betAmount);
@@ -84,14 +84,16 @@ public class KenoListener implements Listener {
                 int matches = game.getMatches();
                 double payout = game.getPayout(betAmount);
 
-                player.sendMessage(ChatColor.GOLD + "Winning numbers: " + winningNumbers.toString());
-                player.sendMessage(ChatColor.GREEN + "You matched " + matches + " numbers.");
-
+                // Show results with title and action bar instead of chat
                 if (payout > 0) {
-                    player.sendMessage(ChatColor.GREEN + "You won " + economy.format(payout) + "!");
+                    player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "KENO WIN!",
+                                   ChatColor.GOLD + "+" + economy.format(payout) + " (" + matches + " matches)", 10, 60, 20);
+                    player.sendActionBar(ChatColor.GREEN + "You won " + economy.format(payout) + " with " + matches + " matches!");
                     economy.depositPlayer(player, payout);
                 } else {
-                    player.sendMessage(ChatColor.RED + "You didn't win this time.");
+                    player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "NO WIN",
+                                   ChatColor.GRAY + "You matched " + matches + " numbers", 10, 40, 10);
+                    player.sendActionBar(ChatColor.RED + "No win this time. You matched " + matches + " numbers.");
                 }
                 player.closeInventory();
             }
@@ -107,7 +109,7 @@ public class KenoListener implements Listener {
             // Bet Amount
             if (slot == 50) {
                 betAmounts.put(playerId, 100.0);
-                player.sendMessage(ChatColor.GOLD + "Betting 100.");
+                player.sendActionBar(ChatColor.GOLD + "Bet amount set to 100.");
             }
         }
     }

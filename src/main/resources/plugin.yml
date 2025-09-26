@@ -1,5 +1,5 @@
 name: Gambling
-version: '1.2.7'
+version: '1.2.8'
 main: org.jeffstein.gambling.Gambling
 api-version: '1.21'
 load: STARTUP
@@ -63,3 +63,7 @@ commands:
     description: Play the Wheel of Fortune game!
     usage: /wheel
     aliases: [wof, fortune]
+  mines:
+    description: Play the Mines game!
+    usage: /mines
+    aliases: [mine, mns]

@@ -16,6 +16,7 @@ import org.jeffstein.gambling.listeners.BlackjackBettingGUIListener;
 import org.jeffstein.gambling.listeners.BlackjackGUIListener;
 import org.jeffstein.gambling.listeners.CrashListener;
 import org.jeffstein.gambling.listeners.KenoListener;
+import org.jeffstein.gambling.listeners.MinesListener;
 import org.jeffstein.gambling.listeners.PlinkoListener;
 import org.jeffstein.gambling.listeners.RouletteListener;
 import org.jeffstein.gambling.listeners.SlotsListener;
@@ -58,6 +59,7 @@ public final class Gambling extends JavaPlugin {
         getCommand("crash").setExecutor(new CrashCommand(this));
         getCommand("plinko").setExecutor(new PlinkoCommand(this));
         getCommand("wheel").setExecutor(new WheelOfFortuneCommand(this));
+        getCommand("mines").setExecutor(new MinesCommand(this));
         getServer().getPluginManager().registerEvents(new SlotsListener(this), this);
         getServer().getPluginManager().registerEvents(new BaccaratListener(this), this);
         getServer().getPluginManager().registerEvents(new RouletteListener(this), this);
@@ -72,6 +74,7 @@ public final class Gambling extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CrashListener(this), this);
         getServer().getPluginManager().registerEvents(new PlinkoListener(this), this);
         getServer().getPluginManager().registerEvents(new WheelOfFortuneListener(this), this);
+        getServer().getPluginManager().registerEvents(new MinesListener(this), this);
     }
 
     @Override

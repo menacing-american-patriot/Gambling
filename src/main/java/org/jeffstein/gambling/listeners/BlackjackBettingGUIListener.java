@@ -71,7 +71,7 @@ public class BlackjackBettingGUIListener implements Listener {
                 
                 // Check if player has enough money
                 if (economy.getBalance(player) < currentBet) {
-                    player.sendMessage(ChatColor.RED + "You don't have enough money to place that bet.");
+                    player.sendActionBar(ChatColor.RED + "You don't have enough money to place that bet.");
                     return;
                 }
                 
