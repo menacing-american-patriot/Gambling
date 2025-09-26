@@ -56,19 +56,23 @@ public class RouletteListener implements Listener {
                 RouletteGame game = games.get(player.getUniqueId());
                 if (game == null) {
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                    player.sendMessage(ChatColor.RED + "[ROULETTE] No game found. Please place a bet first.");
                     return;
                 }
                 if (game.getBets().isEmpty()) {
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                    player.sendMessage(ChatColor.RED + "[ROULETTE] Please place a bet first.");
                     return;
                 }
-                // Sound feedback for spin start
+                // Sound + chat feedback for spin start
                 player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+                player.sendMessage(ChatColor.YELLOW + "[ROULETTE] Starting roulette spin...");
                 startSpin(player, game, rouletteGUI);
             } else if (displayName.equals(ChatColor.GREEN + "Spin Again")) {
                 RouletteGame oldGame = games.get(player.getUniqueId());
                 if (oldGame == null || oldGame.getBets().isEmpty()) {
-                    player.sendActionBar(ChatColor.RED + "No previous bet found.");
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                    player.sendMessage(ChatColor.RED + "[ROULETTE] No previous bet found.");
                     return;
                 }
 
@@ -106,7 +110,8 @@ public class RouletteListener implements Listener {
             } else if (displayName.equals(ChatColor.GREEN + "" + ChatColor.BOLD + "SPIN")) {
                 RouletteGame game = games.get(player.getUniqueId());
                 if (game == null || game.getBets().isEmpty()) {
-                    player.sendActionBar(ChatColor.RED + "Please place a bet first.");
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                    player.sendMessage(ChatColor.RED + "[ROULETTE] Please place a bet first.");
                     return;
                 }
                 double totalBet = game.getBets().values().stream().mapToDouble(Double::doubleValue).sum();
@@ -123,16 +128,19 @@ public class RouletteListener implements Listener {
                     Gambling.getEconomy().withdrawPlayer(player, currentBet);
                     RouletteGame game = games.computeIfAbsent(player.getUniqueId(), k -> new RouletteGame(plugin, player));
                     game.placeBet(betType, currentBet);
-                    player.sendActionBar(ChatColor.GREEN + "Bet placed: " + Gambling.getEconomy().format(currentBet) + " on " + betType);
+                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
+                    player.sendMessage(ChatColor.GREEN + "[ROULETTE] Bet placed: " + Gambling.getEconomy().format(currentBet) + " on " + betType);
                 } else {
-                    player.sendActionBar(ChatColor.RED + "You don't have enough money to place that bet.");
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                    player.sendMessage(ChatColor.RED + "[ROULETTE] You don't have enough money to place that bet.");
                 }
             }
         }
     }
 
     private void startSpin(Player player, RouletteGame game, RouletteGUI gui) {
-        player.sendActionBar(ChatColor.GOLD + "Spinning the roulette wheel...");
+        // Send to chat instead of hidden action bar
+        player.sendMessage(ChatColor.GOLD + "[ROULETTE] Spinning the roulette wheel...");
         new BukkitRunnable() {
             private int ticks = 0;
             private final int totalTicks = 60; // 3 seconds of spinning
@@ -156,6 +164,8 @@ public class RouletteListener implements Listener {
                         color = ChatColor.BLACK + "";
                     }
                     player.sendTitle(color + ChatColor.BOLD + "WINNING NUMBER", color + ChatColor.BOLD + "" + winningNumber, 10, 60, 20);
+                    // Also send to chat
+                    player.sendMessage(ChatColor.YELLOW + "[ROULETTE] " + color + "Winning number: " + winningNumber);
 
                     // Payout logic
                     double totalPayout = 0;
@@ -193,11 +203,17 @@ public class RouletteListener implements Listener {
                                 player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "YOU WON!",
                                                ChatColor.GOLD + "+" + Gambling.getEconomy().format(finalTotalPayout), 10, 60, 20);
                                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
+                                // Also send to chat
+                                player.sendMessage(ChatColor.GREEN + "[ROULETTE] " + ChatColor.BOLD + "YOU WON! " +
+                                                 ChatColor.GOLD + "+" + Gambling.getEconomy().format(finalTotalPayout));
                                 Gambling.getLeaderboard().addWin(player.getUniqueId(), finalTotalPayout);
                             } else {
                                 player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "YOU LOST",
                                                ChatColor.GRAY + "Better luck next time!", 10, 60, 20);
                                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                                // Also send to chat
+                                player.sendMessage(ChatColor.RED + "[ROULETTE] " + ChatColor.BOLD + "YOU LOST! " +
+                                                 ChatColor.GRAY + "Better luck next time!");
                                 Gambling.getLeaderboard().addLoss(player.getUniqueId(), totalLoss);
                             }
                         }

@@ -102,6 +102,8 @@ public class CrapsListener implements Listener {
                 player.sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "DICE ROLLED!",
                                ChatColor.WHITE + "" + dice[0] + " + " + dice[1] + " = " + total, 10, 40, 10);
                 player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+                // Also send to chat
+                player.sendMessage(ChatColor.YELLOW + "[CRAPS] Dice rolled: " + dice[0] + " + " + dice[1] + " = " + total);
 
                 // Process the roll and determine winners/losers
                 processRoll(player, game, total);
@@ -140,7 +142,7 @@ public class CrapsListener implements Listener {
                 // Point is established
                 game.setPoint(total);
                 game.setGameState(CrapsGame.GameState.POINT);
-                player.sendMessage(ChatColor.YELLOW + "Point established: " + total + ". Roll again!");
+                player.sendMessage(ChatColor.YELLOW + "[CRAPS] Point established: " + total + ". Roll again!");
                 return; // Don't clear bets, continue game
             }
         } else {
@@ -165,7 +167,7 @@ public class CrapsListener implements Listener {
                 game.getBets().clear();
             } else {
                 // Other numbers: roll continues
-                player.sendMessage(ChatColor.GRAY + "Roll again! Need " + game.getPoint() + " to win, 7 to lose.");
+                player.sendMessage(ChatColor.GRAY + "[CRAPS] Roll again! Need " + game.getPoint() + " to win, 7 to lose.");
                 return;
             }
         }
@@ -174,13 +176,13 @@ public class CrapsListener implements Listener {
         if (totalPayout > 0) {
             Gambling.getEconomy().depositPlayer(player, totalPayout);
             double profit = totalPayout - (totalPayout / 2); // Profit is half of total payout
-            player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "YOU WON! " + 
+            player.sendMessage(ChatColor.GREEN + "[CRAPS] " + ChatColor.BOLD + "YOU WON! " +
                              ChatColor.GOLD + "+" + Gambling.getEconomy().format(profit));
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
             Gambling.getLeaderboard().addWin(player.getUniqueId(), profit);
         } else if (game.getBets().isEmpty()) {
             // Only show loss if bets were cleared (meaning they lost)
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "YOU LOST!");
+            player.sendMessage(ChatColor.RED + "[CRAPS] " + ChatColor.BOLD + "YOU LOST!");
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             // Loss already recorded when bet was placed
         }
