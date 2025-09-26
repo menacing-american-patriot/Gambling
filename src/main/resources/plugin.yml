@@ -1,0 +1,22 @@
+name: Gambling
+version: '1.0-SNAPSHOT'
+main: org.jeffstein.gambling.Gambling
+api-version: '1.21'
+load: STARTUP
+authors: [ Jeffstein ]
+description: Official Minecraft Gambling Paper plugin
+website: chudcraft.jeffstein.xyz
+depend: [Vault]
+commands:
+  coinflip:
+    description: Flip a coin for money!
+    usage: /coinflip <amount>
+  slots:
+    description: Play the slot machine!
+    usage: /slots <bet>
+  daily:
+    description: Claim your daily reward.
+    usage: /daily
+  leaderboard:
+    description: View the casino leaderboards.
+    usage: /leaderboard
