@@ -44,18 +44,15 @@ public class BaccaratListener implements Listener {
 
             if (slot == 11) { // Player bet
                 bets.put(playerId, "player");
-                player.sendMessage(ChatColor.BLUE + "You are betting on " + ChatColor.BOLD + "Player" + ChatColor.BLUE + ".");
-                player.sendMessage(ChatColor.GRAY + "Player wins pay 2:1 (even money)");
+                player.sendActionBar(ChatColor.BLUE + "Betting on " + ChatColor.BOLD + "PLAYER" + ChatColor.BLUE + " - Pays 2:1");
                 gui.setSelectedBet("player");
             } else if (slot == 13) { // Tie bet
                 bets.put(playerId, "tie");
-                player.sendMessage(ChatColor.WHITE + "You are betting on a " + ChatColor.BOLD + "Tie" + ChatColor.WHITE + ".");
-                player.sendMessage(ChatColor.GRAY + "Tie wins pay 9:1 (high risk, high reward!)");
+                player.sendActionBar(ChatColor.WHITE + "Betting on " + ChatColor.BOLD + "TIE" + ChatColor.WHITE + " - Pays 9:1 (High Risk!)");
                 gui.setSelectedBet("tie");
             } else if (slot == 15) { // Banker bet
                 bets.put(playerId, "banker");
-                player.sendMessage(ChatColor.RED + "You are betting on " + ChatColor.BOLD + "Banker" + ChatColor.RED + ".");
-                player.sendMessage(ChatColor.GRAY + "Banker wins pay 1.95:1 (5% commission)");
+                player.sendActionBar(ChatColor.RED + "Betting on " + ChatColor.BOLD + "BANKER" + ChatColor.RED + " - Pays 1.95:1");
                 gui.setSelectedBet("banker");
             } else if (slot >= 19 && slot <= 21) { // Bet amount buttons
                 double amount = 0;
@@ -64,17 +61,18 @@ public class BaccaratListener implements Listener {
                 if (slot == 21) amount = 1000;
                 betAmounts.put(playerId, amount);
                 Economy economy = Gambling.getEconomy();
-                player.sendMessage(ChatColor.GOLD + "Bet amount set to " + economy.format(amount));
                 if (economy.getBalance(player) < amount) {
-                    player.sendMessage(ChatColor.RED + "Warning: You don't have enough money for this bet!");
+                    player.sendActionBar(ChatColor.RED + "Insufficient funds! Need " + economy.format(amount));
+                } else {
+                    player.sendActionBar(ChatColor.GOLD + "Bet amount: " + economy.format(amount) + " | Balance: " + economy.format(economy.getBalance(player)));
                 }
             } else if (slot == 22) { // Deal button
                 if (!bets.containsKey(playerId)) {
-                    player.sendMessage(ChatColor.RED + "Please select a bet type first (Player, Tie, or Banker).");
+                    player.sendActionBar(ChatColor.RED + "Select a bet type first: Player, Tie, or Banker");
                     return;
                 }
                 if (!betAmounts.containsKey(playerId)) {
-                    player.sendMessage(ChatColor.RED + "Please select a bet amount first.");
+                    player.sendActionBar(ChatColor.RED + "Select a bet amount first");
                     return;
                 }
 
@@ -82,13 +80,12 @@ public class BaccaratListener implements Listener {
                 Economy economy = Gambling.getEconomy();
 
                 if (economy.getBalance(player) < betAmount) {
-                    player.sendMessage(ChatColor.RED + "You do not have enough money for that bet. You need " + economy.format(betAmount) + ".");
+                    player.sendActionBar(ChatColor.RED + "Insufficient funds! Need " + economy.format(betAmount));
                     return;
                 }
 
                 economy.withdrawPlayer(player, betAmount);
-                player.sendMessage(ChatColor.YELLOW + "Bet placed: " + economy.format(betAmount) + " on " + bets.get(playerId).toUpperCase());
-                player.sendMessage(ChatColor.GOLD + "Dealing cards...");
+                player.sendActionBar(ChatColor.YELLOW + "Dealing cards... Bet: " + economy.format(betAmount) + " on " + bets.get(playerId).toUpperCase());
 
                 BaccaratGame game = new BaccaratGame(plugin, player);
 
@@ -106,22 +103,29 @@ public class BaccaratListener implements Listener {
                             int playerValue = game.getHandValue(game.getPlayerHand());
                             int bankerValue = game.getHandValue(game.getBankerHand());
 
-                            // Send detailed game results
-                            player.sendMessage(ChatColor.AQUA + "=== BACCARAT RESULTS ===");
-                            player.sendMessage(ChatColor.BLUE + "Player Hand: " + getHandString(game.getPlayerHand()) + ChatColor.GRAY + " (Value: " + playerValue + ")");
-                            player.sendMessage(ChatColor.RED + "Banker Hand: " + getHandString(game.getBankerHand()) + ChatColor.GRAY + " (Value: " + bankerValue + ")");
+                            // Show hand values in action bar
+                            player.sendActionBar(ChatColor.BLUE + "Player: " + playerValue + ChatColor.GRAY + " | " + ChatColor.RED + "Banker: " + bankerValue);
 
                             String winner;
+                            String titleText;
+                            String subtitleText;
+
                             if (playerValue > bankerValue) {
                                 winner = "player";
-                                player.sendMessage(ChatColor.BLUE + ChatColor.BOLD + "PLAYER WINS!");
+                                titleText = ChatColor.BLUE + "" + ChatColor.BOLD + "PLAYER WINS!";
+                                subtitleText = ChatColor.GRAY + "Player: " + playerValue + " | Banker: " + bankerValue;
                             } else if (bankerValue > playerValue) {
                                 winner = "banker";
-                                player.sendMessage(ChatColor.RED + ChatColor.BOLD + "BANKER WINS!");
+                                titleText = ChatColor.RED + "" + ChatColor.BOLD + "BANKER WINS!";
+                                subtitleText = ChatColor.GRAY + "Player: " + playerValue + " | Banker: " + bankerValue;
                             } else {
                                 winner = "tie";
-                                player.sendMessage(ChatColor.WHITE + ChatColor.BOLD + "IT'S A TIE!");
+                                titleText = ChatColor.WHITE + "" + ChatColor.BOLD + "IT'S A TIE!";
+                                subtitleText = ChatColor.GRAY + "Both hands: " + playerValue;
                             }
+
+                            // Show result as title/subtitle
+                            player.sendTitle(titleText, subtitleText, 10, 60, 20);
 
                             gui.showResult(winner);
 
@@ -136,18 +140,43 @@ public class BaccaratListener implements Listener {
                                 } else if (betType.equals("tie")) {
                                     payout = betAmount * 9;
                                 }
-                                player.sendMessage(ChatColor.GREEN + ChatColor.BOLD + "CONGRATULATIONS! You won " + economy.format(payout) + "!");
-                                player.sendMessage(ChatColor.GRAY + "Your bet on " + betType.toUpperCase() + " was correct!");
+
+                                // Make variables final for inner class
+                                final double finalPayout = payout;
+                                final String finalBetType = betType;
+
+                                // Show win notification after a delay
+                                new BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                        player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "YOU WON!",
+                                                        ChatColor.GOLD + "+" + economy.format(finalPayout), 10, 40, 10);
+                                        player.sendActionBar(ChatColor.GREEN + "Congratulations! Your bet on " + finalBetType.toUpperCase() + " was correct!");
+                                    }
+                                }.runTaskLater(plugin, 80L); // 4 seconds delay
+
                                 economy.depositPlayer(player, payout);
                                 Gambling.getLeaderboard().addWin(playerId, betAmount);
                                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
                             } else {
-                                player.sendMessage(ChatColor.RED + "You lost " + economy.format(betAmount) + ".");
-                                player.sendMessage(ChatColor.GRAY + "You bet on " + betType.toUpperCase() + " but " + winner.toUpperCase() + " won.");
+                                // Make variables final for inner class
+                                final String finalBetType = betType;
+                                final String finalWinner = winner;
+                                final double finalBetAmount = betAmount;
+
+                                // Show loss notification after a delay
+                                new BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                        player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "YOU LOST",
+                                                        ChatColor.GRAY + "-" + economy.format(finalBetAmount), 10, 40, 10);
+                                        player.sendActionBar(ChatColor.RED + "You bet on " + finalBetType.toUpperCase() + " but " + finalWinner.toUpperCase() + " won");
+                                    }
+                                }.runTaskLater(plugin, 80L); // 4 seconds delay
+
                                 Gambling.getLeaderboard().addLoss(playerId, betAmount);
                                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                             }
-                            player.sendMessage(ChatColor.AQUA + "======================");
                             betAmounts.remove(playerId);
                             return;
                         }
@@ -162,7 +191,7 @@ public class BaccaratListener implements Listener {
                 // Reset the game for a new round
                 bets.remove(playerId);
                 betAmounts.remove(playerId);
-                player.sendMessage(ChatColor.YELLOW + "Starting a new game of Baccarat!");
+                player.sendActionBar(ChatColor.YELLOW + "Starting a new game of Baccarat!");
 
                 // Reopen a fresh GUI
                 BaccaratGUI newGui = new BaccaratGUI(plugin, player);

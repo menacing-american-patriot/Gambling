@@ -49,7 +49,7 @@ public class BlackjackGame {
 
         // Withdraw the bet amount upfront
         economy.withdrawPlayer(player, bet);
-        player.sendMessage(ChatColor.RED + "Bet placed: " + economy.format(bet));
+        player.sendActionBar(ChatColor.YELLOW + "Blackjack started! Bet: " + economy.format(bet));
 
         deck.shuffle();
         playerHand.add(deck.deal());
@@ -107,14 +107,17 @@ public class BlackjackGame {
         if (gameEnded) return;
         gameEnded = true;
         if (playerWon == null) {
-            player.sendMessage(ChatColor.YELLOW + "Push! Your bet has been returned.");
+            player.sendTitle(ChatColor.YELLOW + "" + ChatColor.BOLD + "PUSH!", ChatColor.GRAY + "Bet returned", 10, 40, 10);
+            player.sendActionBar(ChatColor.YELLOW + "It's a tie! Your bet has been returned.");
             economy.depositPlayer(player, bet);
         } else if (playerWon) {
-            player.sendMessage(ChatColor.GREEN + "You win! You won " + economy.format(bet * 2));
+            player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "BLACKJACK WIN!", ChatColor.GOLD + "+" + economy.format(bet * 2), 10, 40, 10);
+            player.sendActionBar(ChatColor.GREEN + "Congratulations! You won " + economy.format(bet * 2));
             economy.depositPlayer(player, bet * 2);
             Gambling.getLeaderboard().addWin(player.getUniqueId(), bet);
         } else {
-            player.sendMessage(ChatColor.DARK_RED + "You lose! You lost " + economy.format(bet));
+            player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "YOU LOST", ChatColor.GRAY + "-" + economy.format(bet), 10, 40, 10);
+            player.sendActionBar(ChatColor.RED + "Better luck next time! You lost " + economy.format(bet));
             Gambling.getLeaderboard().addLoss(player.getUniqueId(), bet);
         }
         games.remove(player.getUniqueId());

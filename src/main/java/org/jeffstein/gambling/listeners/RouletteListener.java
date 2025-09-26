@@ -62,7 +62,7 @@ public class RouletteListener implements Listener {
                     player.sendMessage(ChatColor.RED + "Please place a bet first.");
                     return;
                 }
-                player.sendMessage(ChatColor.YELLOW + "Starting roulette spin...");
+                player.sendActionBar(ChatColor.YELLOW + "Starting roulette spin...");
                 startSpin(player, game, rouletteGUI);
             } else if (displayName.equals(ChatColor.GREEN + "Spin Again")) {
                 RouletteGame oldGame = games.get(player.getUniqueId());
@@ -122,7 +122,7 @@ public class RouletteListener implements Listener {
                     Gambling.getEconomy().withdrawPlayer(player, currentBet);
                     RouletteGame game = games.computeIfAbsent(player.getUniqueId(), k -> new RouletteGame(plugin, player));
                     game.placeBet(betType, currentBet);
-                    player.sendMessage("You placed a bet of " + Gambling.getEconomy().format(currentBet) + " on " + betType);
+                    player.sendActionBar(ChatColor.GREEN + "Bet placed: " + Gambling.getEconomy().format(currentBet) + " on " + betType);
                 } else {
                     player.sendMessage(ChatColor.RED + "You don't have enough money to place that bet.");
                 }
@@ -131,7 +131,7 @@ public class RouletteListener implements Listener {
     }
 
     private void startSpin(Player player, RouletteGame game, RouletteGUI gui) {
-        player.sendMessage(ChatColor.GOLD + "Spinning the roulette wheel...");
+        player.sendActionBar(ChatColor.GOLD + "Spinning the roulette wheel...");
         new BukkitRunnable() {
             private int ticks = 0;
             private final int totalTicks = 60; // 3 seconds of spinning
@@ -144,7 +144,17 @@ public class RouletteListener implements Listener {
                     this.cancel();
                     game.spin();
                     int winningNumber = game.getWinningNumber();
-                    player.sendMessage("The winning number is " + winningNumber);
+
+                    // Show winning number as title
+                    String color = "";
+                    if (winningNumber == 0) {
+                        color = ChatColor.GREEN + "";
+                    } else if (game.isRed(winningNumber)) {
+                        color = ChatColor.RED + "";
+                    } else {
+                        color = ChatColor.BLACK + "";
+                    }
+                    player.sendTitle(color + ChatColor.BOLD + "WINNING NUMBER", color + ChatColor.BOLD + "" + winningNumber, 10, 60, 20);
 
                     // Payout logic
                     double totalPayout = 0;
@@ -167,13 +177,27 @@ public class RouletteListener implements Listener {
                         }
                     }
 
-                    if (totalPayout > 0) {
-                        player.sendMessage(ChatColor.GREEN + "You won " + Gambling.getEconomy().format(totalPayout));
-                        Gambling.getLeaderboard().addWin(player.getUniqueId(), totalPayout);
-                    } else {
-                        player.sendMessage(ChatColor.RED + "You lost!");
-                        Gambling.getLeaderboard().addLoss(player.getUniqueId(), game.getBets().values().stream().mapToDouble(Double::doubleValue).sum());
-                    }
+                    // Make variables final for inner class
+                    final double finalTotalPayout = totalPayout;
+                    final double totalLoss = game.getBets().values().stream().mapToDouble(Double::doubleValue).sum();
+
+                    // Show win/loss result after a delay
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            if (finalTotalPayout > 0) {
+                                player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "YOU WON!",
+                                               ChatColor.GOLD + "+" + Gambling.getEconomy().format(finalTotalPayout), 10, 40, 10);
+                                player.sendActionBar(ChatColor.GREEN + "Congratulations! You won " + Gambling.getEconomy().format(finalTotalPayout));
+                                Gambling.getLeaderboard().addWin(player.getUniqueId(), finalTotalPayout);
+                            } else {
+                                player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "YOU LOST",
+                                               ChatColor.GRAY + "Better luck next time!", 10, 40, 10);
+                                player.sendActionBar(ChatColor.RED + "No winning bets this round");
+                                Gambling.getLeaderboard().addLoss(player.getUniqueId(), totalLoss);
+                            }
+                        }
+                    }.runTaskLater(plugin, 80L); // 4 seconds delay
 
                     gui.showResult(winningNumber);
                     return;

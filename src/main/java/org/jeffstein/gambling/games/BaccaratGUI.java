@@ -29,17 +29,17 @@ public class BaccaratGUI implements InventoryHolder {
 
     private void initializeItems() {
         // Betting options with detailed descriptions
-        gui.setItem(11, createGuiItem(Material.BLUE_WOOL, ChatColor.BLUE + ChatColor.BOLD + "Player",
+        gui.setItem(11, createGuiItem(Material.BLUE_WOOL, ChatColor.BLUE + "" + ChatColor.BOLD + "Player",
             ChatColor.GRAY + "Bet on the Player hand",
             ChatColor.YELLOW + "Pays: " + ChatColor.WHITE + "2:1 (even money)",
             ChatColor.GREEN + "Click to select"));
 
-        gui.setItem(13, createGuiItem(Material.WHITE_WOOL, ChatColor.WHITE + ChatColor.BOLD + "Tie",
+        gui.setItem(13, createGuiItem(Material.WHITE_WOOL, ChatColor.WHITE + "" + ChatColor.BOLD + "Tie",
             ChatColor.GRAY + "Bet on a tie between hands",
             ChatColor.YELLOW + "Pays: " + ChatColor.WHITE + "9:1 (high risk!)",
             ChatColor.GREEN + "Click to select"));
 
-        gui.setItem(15, createGuiItem(Material.RED_WOOL, ChatColor.RED + ChatColor.BOLD + "Banker",
+        gui.setItem(15, createGuiItem(Material.RED_WOOL, ChatColor.RED + "" + ChatColor.BOLD + "Banker",
             ChatColor.GRAY + "Bet on the Banker hand",
             ChatColor.YELLOW + "Pays: " + ChatColor.WHITE + "1.95:1 (5% commission)",
             ChatColor.GREEN + "Click to select"));
@@ -57,12 +57,12 @@ public class BaccaratGUI implements InventoryHolder {
             ChatColor.GRAY + "Large bet amount",
             ChatColor.GREEN + "Click to select"));
 
-        gui.setItem(22, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + ChatColor.BOLD + "DEAL CARDS",
+        gui.setItem(22, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "" + ChatColor.BOLD + "DEAL CARDS",
             ChatColor.GRAY + "Start the game!",
             ChatColor.YELLOW + "Make sure to select bet type and amount first"));
 
         // Add decorative elements
-        gui.setItem(4, createGuiItem(Material.EMERALD, ChatColor.GREEN + ChatColor.BOLD + "BACCARAT",
+        gui.setItem(4, createGuiItem(Material.EMERALD, ChatColor.GREEN + "" + ChatColor.BOLD + "BACCARAT",
             ChatColor.GRAY + "The classic casino card game",
             ChatColor.YELLOW + "Goal: " + ChatColor.WHITE + "Bet on the hand closest to 9"));
     }
@@ -105,20 +105,20 @@ public class BaccaratGUI implements InventoryHolder {
     public void showResult(String winner) {
         ItemStack resultItem;
         if (winner.equals("player")) {
-            resultItem = createGuiItem(Material.BLUE_WOOL, ChatColor.BLUE + ChatColor.BOLD + "PLAYER WINS!",
+            resultItem = createGuiItem(Material.BLUE_WOOL, ChatColor.BLUE + "" + ChatColor.BOLD + "PLAYER WINS!",
                 ChatColor.GRAY + "The Player hand was closest to 9",
                 ChatColor.GREEN + "Congratulations if you bet on Player!");
         } else if (winner.equals("banker")) {
-            resultItem = createGuiItem(Material.RED_WOOL, ChatColor.RED + ChatColor.BOLD + "BANKER WINS!",
+            resultItem = createGuiItem(Material.RED_WOOL, ChatColor.RED + "" + ChatColor.BOLD + "BANKER WINS!",
                 ChatColor.GRAY + "The Banker hand was closest to 9",
                 ChatColor.GREEN + "Congratulations if you bet on Banker!");
         } else {
-            resultItem = createGuiItem(Material.WHITE_WOOL, ChatColor.WHITE + ChatColor.BOLD + "IT'S A TIE!",
+            resultItem = createGuiItem(Material.WHITE_WOOL, ChatColor.WHITE + "" + ChatColor.BOLD + "IT'S A TIE!",
                 ChatColor.GRAY + "Both hands have the same value",
                 ChatColor.GREEN + "Congratulations if you bet on Tie!");
         }
         gui.setItem(4, resultItem);
-        gui.setItem(22, createGuiItem(Material.ORANGE_STAINED_GLASS_PANE, ChatColor.GOLD + ChatColor.BOLD + "NEW GAME",
+        gui.setItem(22, createGuiItem(Material.ORANGE_STAINED_GLASS_PANE, ChatColor.GOLD + "" + ChatColor.BOLD + "NEW GAME",
             ChatColor.GRAY + "Click to start a new round",
             ChatColor.YELLOW + "Your previous bet selections will be cleared"));
     }
@@ -164,10 +164,10 @@ public class BaccaratGUI implements InventoryHolder {
         ItemStack item = new ItemStack(card.getMaterial());
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.WHITE + card.getRank() + " of " + card.getSuit());
+            meta.setDisplayName(ChatColor.WHITE + card.getRank().toString() + " of " + card.getSuit().toString());
             meta.setLore(Arrays.asList(
                 ChatColor.GRAY + "Value: " + ChatColor.WHITE + getBaccaratCardValue(card),
-                ChatColor.GRAY + "Suit: " + ChatColor.WHITE + card.getSuit()
+                ChatColor.GRAY + "Suit: " + ChatColor.WHITE + card.getSuit().toString()
             ));
             if (card.getCustomModelData() != 0) {
                 meta.setCustomModelData(card.getCustomModelData());
@@ -193,7 +193,7 @@ public class BaccaratGUI implements InventoryHolder {
     private String getHandString(List<Card> hand) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < hand.size(); i++) {
-            sb.append(hand.get(i).getRank()).append(" of ").append(hand.get(i).getSuit());
+            sb.append(hand.get(i).getRank().toString()).append(" of ").append(hand.get(i).getSuit().toString());
             if (i < hand.size() - 1) {
                 sb.append(", ");
             }

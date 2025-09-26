@@ -77,7 +77,7 @@ public class BlackjackBettingGUIListener implements Listener {
                 
                 // Withdraw the bet amount
                 economy.withdrawPlayer(player, currentBet);
-                player.sendMessage(ChatColor.RED + "Bet placed: " + economy.format(currentBet));
+                player.sendActionBar(ChatColor.YELLOW + "Blackjack started! Bet: " + economy.format(currentBet));
                 
                 // Create and start the game
                 BlackjackGame game = new BlackjackGame(plugin, player, currentBet, games);
