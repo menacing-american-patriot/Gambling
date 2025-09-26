@@ -14,9 +14,15 @@ commands:
   slots:
     description: Play the slot machine!
     usage: /slots <bet>
+  blackjack:
+    description: Play a game of blackjack!
+    usage: /blackjack <bet>
   daily:
     description: Claim your daily reward.
     usage: /daily
   leaderboard:
     description: View the casino leaderboards.
     usage: /leaderboard
+  jackpot:
+    description: View the current jackpot.
+    usage: /jackpot

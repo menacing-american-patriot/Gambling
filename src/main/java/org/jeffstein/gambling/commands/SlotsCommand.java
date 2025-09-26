@@ -1,5 +1,6 @@
 package org.jeffstein.gambling.commands;
 
+import org.jeffstein.gambling.Gambling;
 import org.jeffstein.gambling.games.SlotMachine;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,7 +16,7 @@ public class SlotsCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Only players can use this command.");
             return true;

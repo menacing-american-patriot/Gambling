@@ -16,10 +16,10 @@ import java.util.concurrent.ThreadLocalRandom;
 public class CoinflipCommand implements CommandExecutor {
 
     // Get the Vault economy API instance from your main class
-    private final Economy economy = CasinoGames.getEconomy();
+    private final Economy economy = Gambling.getEconomy();
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // 1. Command can only be run by a player
         if (!(sender instanceof Player)) {
             sender.sendMessage("Only players can execute this command.");
@@ -36,7 +36,7 @@ public class CoinflipCommand implements CommandExecutor {
 
         double betAmount;
         try {
-            betAmount = Double.parseDouble(args);
+            betAmount = Double.parseDouble(args[0]);
         } catch (NumberFormatException e) {
             player.sendMessage(ChatColor.RED + "Please enter a valid number.");
             return true;
@@ -67,19 +67,19 @@ public class CoinflipCommand implements CommandExecutor {
         if (won) {
             double winnings = betAmount * 2;
             economy.depositPlayer(player, winnings);
+            Gambling.getLeaderboard().addWin(player.getUniqueId(), betAmount);
             player.sendMessage(ChatColor.GOLD + "Coinflip... " + ChatColor.GREEN + "You won! " +
                     ChatColor.GOLD + "You received " + economy.format(winnings) + ".");
 
             // Fun effects for winning [5, 6]
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
-            player.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, player.getLocation().add(0, 1, 0), 30, 0.5, 0.5, 0.5);
         } else {
+            Gambling.getLeaderboard().addLoss(player.getUniqueId(), betAmount);
             player.sendMessage(ChatColor.GOLD + "Coinflip... " + ChatColor.RED + "You lost! " +
                     ChatColor.GOLD + "You lost " + economy.format(betAmount) + ".");
 
             // Effects for losing
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-            player.getWorld().spawnParticle(Particle.SMOKE_LARGE, player.getLocation().add(0, 1, 0), 15, 0.2, 0.2, 0.2, 0.01);
         }
 
         return true;

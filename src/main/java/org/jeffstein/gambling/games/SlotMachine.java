@@ -93,7 +93,7 @@ public class SlotMachine implements InventoryHolder {
                 }
 
                 // Update the reel items to simulate spinning
-                for (int slot : new int{12, 13, 14}) {
+                for (int slot : new int[]{12, 13, 14}) {
                     gui.setItem(slot, new ItemStack(reelItems.get(ThreadLocalRandom.current().nextInt(reelItems.size()))));
                 }
 
@@ -108,20 +108,29 @@ public class SlotMachine implements InventoryHolder {
         ItemStack reel2 = gui.getItem(13);
         ItemStack reel3 = gui.getItem(14);
 
-        if (reel1 == null |
+        if (reel1 == null || reel2 == null || reel3 == null) return;
 
-                | reel2 == null |
-                | reel3 == null) return;
+        // Add a portion of the spin cost to the jackpot
+        Gambling.getJackpot().addToJackpot(spinCost * 0.1);
 
         // Check for a win (all three items are the same)
         if (reel1.getType() == reel2.getType() && reel2.getType() == reel3.getType()) {
             double multiplier = getMultiplier(reel1.getType());
             double winnings = spinCost * multiplier;
+
+            if (reel1.getType() == Material.DIAMOND) {
+                winnings += Gambling.getJackpot().getJackpot();
+                Gambling.getJackpot().resetJackpot();
+                Bukkit.broadcastMessage(ChatColor.GOLD + player.getName() + " has won the jackpot of " + economy.format(winnings) + "!");
+            }
+
             economy.depositPlayer(player, winnings);
+            Gambling.getLeaderboard().addWin(player.getUniqueId(), winnings);
 
             player.sendMessage(ChatColor.GREEN + "Jackpot! You won " + economy.format(winnings) + "!");
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         } else {
+            Gambling.getLeaderboard().addLoss(player.getUniqueId(), spinCost);
             player.sendMessage(ChatColor.RED + "You lost. Better luck next time!");
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
         }
