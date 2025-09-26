@@ -26,3 +26,6 @@ commands:
   jackpot:
     description: View the current jackpot.
     usage: /jackpot
+  poker:
+    description: Play poker with other players.
+    usage: /poker <join|leave|bet|check|fold>

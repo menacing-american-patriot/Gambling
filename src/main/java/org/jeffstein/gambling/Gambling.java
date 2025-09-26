@@ -32,6 +32,7 @@ public final class Gambling extends JavaPlugin {
         getCommand("daily").setExecutor(new DailyCommand(this));
         getCommand("leaderboard").setExecutor(new LeaderboardCommand());
         getCommand("jackpot").setExecutor(new JackpotCommand());
+        getCommand("poker").setExecutor(new PokerCommand(this));
         getServer().getPluginManager().registerEvents(new SlotsListener(this), this);
     }
 
