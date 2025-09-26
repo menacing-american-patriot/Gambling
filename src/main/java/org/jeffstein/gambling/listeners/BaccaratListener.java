@@ -193,9 +193,13 @@ public class BaccaratListener implements Listener {
                 betAmounts.remove(playerId);
                 player.sendActionBar(ChatColor.YELLOW + "Starting a new game of Baccarat!");
 
-                // Reopen a fresh GUI
-                BaccaratGUI newGui = new BaccaratGUI(plugin, player);
-                newGui.openInventory();
+                // Reset the current GUI instead of creating a new one
+                BaccaratGUI currentGui = (BaccaratGUI) holder;
+                currentGui.resetForNewGame();
+
+            } else if (slot == 26) { // Back button
+                player.closeInventory();
+                player.sendActionBar(ChatColor.GRAY + "Thanks for playing Baccarat!");
             }
         }
     }

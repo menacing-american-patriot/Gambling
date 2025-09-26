@@ -5,8 +5,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.ItemFlag;
@@ -60,6 +62,10 @@ public class BaccaratGUI implements InventoryHolder {
         gui.setItem(22, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "" + ChatColor.BOLD + "DEAL CARDS",
             ChatColor.GRAY + "Start the game!",
             ChatColor.YELLOW + "Make sure to select bet type and amount first"));
+
+        // Add back button
+        gui.setItem(26, createGuiItem(Material.OAK_DOOR, ChatColor.YELLOW + "Back",
+            ChatColor.GRAY + "Close the baccarat game"));
 
         // Add decorative elements
         gui.setItem(4, createGuiItem(Material.EMERALD, ChatColor.GREEN + "" + ChatColor.BOLD + "BACCARAT",
@@ -146,6 +152,40 @@ public class BaccaratGUI implements InventoryHolder {
             ItemMeta meta = gui.getItem(15).getItemMeta();
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             gui.getItem(15).setItemMeta(meta);
+        }
+    }
+
+    public void resetForNewGame() {
+        // Clear all card displays
+        for (int i = 0; i < 9; i++) {
+            gui.setItem(i, null);
+        }
+        for (int i = 18; i < 27; i++) {
+            if (i != 26) { // Don't clear the back button
+                gui.setItem(i, null);
+            }
+        }
+
+        // Reset the center display
+        gui.setItem(4, createGuiItem(Material.EMERALD, ChatColor.GREEN + "" + ChatColor.BOLD + "BACCARAT",
+            ChatColor.GRAY + "The classic casino card game",
+            ChatColor.YELLOW + "Goal: " + ChatColor.WHITE + "Bet on the hand closest to 9"));
+
+        // Reset the deal button
+        gui.setItem(22, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "" + ChatColor.BOLD + "DEAL CARDS",
+            ChatColor.GRAY + "Start the game!",
+            ChatColor.YELLOW + "Make sure to select bet type and amount first"));
+
+        // Clear hand value displays
+        gui.setItem(9, null);
+        gui.setItem(17, null);
+
+        // Remove enchantments from bet selection buttons
+        for (int i = 11; i <= 15; i+=2) {
+            ItemStack item = gui.getItem(i);
+            if (item != null) {
+                item.removeEnchantment(Enchantment.INFINITY);
+            }
         }
     }
 

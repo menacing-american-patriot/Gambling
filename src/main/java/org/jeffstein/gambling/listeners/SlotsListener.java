@@ -2,6 +2,7 @@ package org.jeffstein.gambling.listeners;
 
 import org.jeffstein.gambling.Gambling;
 import org.jeffstein.gambling.games.SlotMachine;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,10 +30,14 @@ public class SlotsListener implements Listener {
                 return;
             }
 
-            // Check if they clicked the "Spin" button (slot 22)
-            if (event.getRawSlot() == 22) {
+            // Check if they clicked the "Spin" button (slot 49)
+            if (event.getRawSlot() == 49) {
                 SlotMachine slotMachine = (SlotMachine) holder;
                 slotMachine.spin();
+            } else if (event.getRawSlot() == 45) { // Back button
+                Player player = (Player) event.getWhoClicked();
+                player.closeInventory();
+                player.sendActionBar(ChatColor.GRAY + "Thanks for playing slots!");
             }
         }
     }
