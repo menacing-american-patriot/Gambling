@@ -24,7 +24,6 @@ public class RouletteCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        RouletteGUI gui = new RouletteGUI(plugin, player);
         RouletteBettingGUI gui = new RouletteBettingGUI(plugin, player);
         gui.openInventory();
         return true;

@@ -3,6 +3,8 @@ package org.jeffstein.gambling.listeners;
 import org.jeffstein.gambling.Gambling;
 import org.jeffstein.gambling.games.BlackjackGUI;
 import org.jeffstein.gambling.games.BlackjackGame;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,10 +18,11 @@ import java.util.UUID;
 public class BlackjackGUIListener implements Listener {
 
     private final Gambling plugin;
-    private final Map<UUID, BlackjackGame> games = new HashMap<>();
+    private final Map<UUID, BlackjackGame> games;
 
-    public BlackjackGUIListener(Gambling plugin) {
+    public BlackjackGUIListener(Gambling plugin, Map<UUID, BlackjackGame> games) {
         this.plugin = plugin;
+        this.games = games;
     }
 
     @EventHandler
@@ -37,10 +40,9 @@ public class BlackjackGUIListener implements Listener {
             int slot = event.getRawSlot();
 
             if (!games.containsKey(playerId)) {
-                // For now, let's just assume a bet of 100
-                BlackjackGame game = new BlackjackGame(plugin, player, 100, games);
-                games.put(playerId, game);
-                ((BlackjackGUI) holder).updateHands(game.getPlayerHand(), game.getDealerHand(), false);
+                player.sendMessage(ChatColor.RED + "No active game found. Please start a new game from the betting menu.");
+                player.closeInventory();
+                return;
             }
 
             BlackjackGame game = games.get(playerId);

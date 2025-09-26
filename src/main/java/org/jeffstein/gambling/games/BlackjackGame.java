@@ -40,6 +40,17 @@ public class BlackjackGame {
     }
 
     public void start() {
+        // Check if player has enough money and withdraw the bet
+        if (economy.getBalance(player) < bet) {
+            player.sendMessage(ChatColor.RED + "You don't have enough money to place that bet. You need " + economy.format(bet) + ".");
+            games.remove(player.getUniqueId()); // Remove the game since it can't start
+            return;
+        }
+
+        // Withdraw the bet amount upfront
+        economy.withdrawPlayer(player, bet);
+        player.sendMessage(ChatColor.RED + "Bet placed: " + economy.format(bet));
+
         deck.shuffle();
         playerHand.add(deck.deal());
         playerHand.add(deck.deal());

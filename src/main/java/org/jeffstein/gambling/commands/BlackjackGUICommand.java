@@ -1,7 +1,7 @@
 package org.jeffstein.gambling.commands;
 
 import org.jeffstein.gambling.Gambling;
-import org.jeffstein.gambling.games.BlackjackGUI;
+import org.jeffstein.gambling.games.BlackjackBettingGUI;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,8 +23,8 @@ public class BlackjackGUICommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        BlackjackGUI gui = new BlackjackGUI(plugin, player);
-        gui.openInventory();
+        BlackjackBettingGUI bettingGUI = new BlackjackBettingGUI(plugin, player);
+        bettingGUI.openInventory();
         return true;
     }
 }

@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class RouletteGUI implements InventoryHolder {
 
@@ -31,9 +32,13 @@ public class RouletteGUI implements InventoryHolder {
         // Create the circle of numbers
         int[] border = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 53, 52, 51, 50, 49, 48, 47, 46, 37, 28, 19, 10};
         int[] numbers = {0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26};
+        List<Integer> redNumbers = Arrays.asList(1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36);
 
         for (int i = 0; i < numbers.length; i++) {
-            Material material = (numbers[i] != 0 && numbers[i] % 2 == 0) ? Material.RED_CONCRETE : Material.BLACK_CONCRETE;
+            Material material = Material.BLACK_CONCRETE;
+            if (redNumbers.contains(numbers[i])) {
+                material = Material.RED_CONCRETE;
+            }
             if (numbers[i] == 0) material = Material.GREEN_CONCRETE;
             if (i < border.length)
                 gui.setItem(border[i], createGuiItem(material, String.valueOf(numbers[i])));

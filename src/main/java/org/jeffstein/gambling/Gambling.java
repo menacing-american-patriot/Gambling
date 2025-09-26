@@ -12,6 +12,7 @@ import org.jeffstein.gambling.commands.RouletteCommand;
 import org.jeffstein.gambling.commands.SlotsCommand;
 import org.jeffstein.gambling.commands.CrapsCommand;
 import org.jeffstein.gambling.listeners.BaccaratListener;
+import org.jeffstein.gambling.listeners.BlackjackBettingGUIListener;
 import org.jeffstein.gambling.listeners.BlackjackGUIListener;
 import org.jeffstein.gambling.listeners.KenoListener;
 import org.jeffstein.gambling.listeners.RouletteListener;
@@ -54,7 +55,12 @@ public final class Gambling extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SlotsListener(this), this);
         getServer().getPluginManager().registerEvents(new BaccaratListener(this), this);
         getServer().getPluginManager().registerEvents(new RouletteListener(this), this);
-        getServer().getPluginManager().registerEvents(new BlackjackGUIListener(this), this);
+
+        // Register blackjack listeners with shared games map
+        BlackjackBettingGUIListener blackjackBettingListener = new BlackjackBettingGUIListener(this);
+        getServer().getPluginManager().registerEvents(blackjackBettingListener, this);
+        getServer().getPluginManager().registerEvents(new BlackjackGUIListener(this, blackjackBettingListener.getGames()), this);
+
         getServer().getPluginManager().registerEvents(new KenoListener(this), this);
         getServer().getPluginManager().registerEvents(new CrapsListener(this), this);
     }

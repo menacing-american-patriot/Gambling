@@ -54,10 +54,15 @@ public class RouletteListener implements Listener {
 
             if (displayName.equals(ChatColor.GREEN + "" + ChatColor.BOLD + "SPIN")) {
                 RouletteGame game = games.get(player.getUniqueId());
-                if (game == null || game.getBets().isEmpty()) {
-                    player.sendMessage("Please place a bet first.");
+                if (game == null) {
+                    player.sendMessage(ChatColor.RED + "No game found. Please place a bet first.");
                     return;
                 }
+                if (game.getBets().isEmpty()) {
+                    player.sendMessage(ChatColor.RED + "Please place a bet first.");
+                    return;
+                }
+                player.sendMessage(ChatColor.YELLOW + "Starting roulette spin...");
                 startSpin(player, game, rouletteGUI);
             } else if (displayName.equals(ChatColor.GREEN + "Spin Again")) {
                 RouletteGame oldGame = games.get(player.getUniqueId());
@@ -97,7 +102,7 @@ public class RouletteListener implements Listener {
             } else if (displayName.equals(ChatColor.GREEN + "+100")) {
                 currentBet += 100;
                 bettingGUI.setCurrentBet(currentBet);
-            } else if (displayName.equals(ChatColor.GREEN + "Spin")) {
+            } else if (displayName.equals(ChatColor.GREEN + "" + ChatColor.BOLD + "SPIN")) {
                 RouletteGame game = games.get(player.getUniqueId());
                 if (game == null || game.getBets().isEmpty()) {
                     player.sendMessage("Please place a bet first.");
@@ -106,18 +111,27 @@ public class RouletteListener implements Listener {
                 double totalBet = game.getBets().values().stream().mapToDouble(Double::doubleValue).sum();
                 RouletteGUI newRouletteGUI = new RouletteGUI(plugin, player, totalBet);
                 newRouletteGUI.openInventory();
+                startSpin(player, game, newRouletteGUI);
             } else if (displayName.equals(ChatColor.GOLD + "Current Bet")) {
                 // Do nothing
+            } else if (clickedItem.getType() == Material.LIME_STAINED_GLASS_PANE) {
+                // Do nothing for spin button
             } else {
                 String betType = displayName;
-                RouletteGame game = games.computeIfAbsent(player.getUniqueId(), k -> new RouletteGame(plugin, player));
-                game.placeBet(betType, currentBet);
-                player.sendMessage("You placed a bet of " + Gambling.getEconomy().format(currentBet) + " on " + betType);
+                if (Gambling.getEconomy().getBalance(player) >= currentBet) {
+                    Gambling.getEconomy().withdrawPlayer(player, currentBet);
+                    RouletteGame game = games.computeIfAbsent(player.getUniqueId(), k -> new RouletteGame(plugin, player));
+                    game.placeBet(betType, currentBet);
+                    player.sendMessage("You placed a bet of " + Gambling.getEconomy().format(currentBet) + " on " + betType);
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money to place that bet.");
+                }
             }
         }
     }
 
     private void startSpin(Player player, RouletteGame game, RouletteGUI gui) {
+        player.sendMessage(ChatColor.GOLD + "Spinning the roulette wheel...");
         new BukkitRunnable() {
             private int ticks = 0;
             private final int totalTicks = 60; // 3 seconds of spinning
@@ -141,9 +155,9 @@ public class RouletteListener implements Listener {
 
                         if (betType.equals(String.valueOf(winningNumber))) {
                             payout = betAmount * 36;
-                        } else if (betType.equals("Black") && winningNumber % 2 == 0 && winningNumber != 0) {
+                        } else if (betType.equalsIgnoreCase("Black") && game.isBlack(winningNumber)) {
                             payout = betAmount * 2;
-                        } else if (betType.equals("Red") && winningNumber % 2 != 0) {
+                        } else if (betType.equalsIgnoreCase("Red") && game.isRed(winningNumber)) {
                             payout = betAmount * 2;
                         }
 
@@ -169,11 +183,21 @@ public class RouletteListener implements Listener {
                 for (int i = 0; i < border.length; i++) {
                     ItemStack item = gui.getInventory().getItem(border[i]);
                     if (item != null) {
+                        ItemStack newItem = item.clone(); // Clone the item to avoid modifying the original
                         if (i == index) {
-                            item.setType(spinMaterials[ticks % spinMaterials.length]);
+                            newItem.setType(spinMaterials[ticks % spinMaterials.length]);
                         } else {
-                            item.setType((i % 2 == 0) ? Material.RED_CONCRETE : Material.BLACK_CONCRETE);
+                            // Get the original color of the number
+                            int number = Integer.parseInt(ChatColor.stripColor(item.getItemMeta().getDisplayName()));
+                            if (number == 0) {
+                                newItem.setType(Material.GREEN_CONCRETE);
+                            } else if (game.isRed(number)) {
+                                newItem.setType(Material.RED_CONCRETE);
+                            } else {
+                                newItem.setType(Material.BLACK_CONCRETE);
+                            }
                         }
+                        gui.getInventory().setItem(border[i], newItem); // Set the modified item back into the inventory
                     }
                 }
 
