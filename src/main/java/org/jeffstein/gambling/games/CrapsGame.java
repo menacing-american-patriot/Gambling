@@ -14,6 +14,7 @@ public class CrapsGame {
     private final Map<String, Double> bets = new HashMap<>();
     private int point;
     private GameState gameState;
+    private int[] lastRoll;
 
     public enum GameState {
         COME_OUT,
@@ -31,6 +32,7 @@ public class CrapsGame {
         int[] dice = new int[2];
         dice[0] = random.nextInt(6) + 1;
         dice[1] = random.nextInt(6) + 1;
+        lastRoll = dice; // Store the last roll
         return dice;
     }
 
@@ -56,5 +58,9 @@ public class CrapsGame {
 
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
+    }
+
+    public int[] getLastRoll() {
+        return lastRoll;
     }
 }

@@ -1,7 +1,8 @@
 package org.jeffstein.gambling.commands;
 
 import org.jeffstein.gambling.Gambling;
-import org.jeffstein.gambling.games.CrapsBettingGUI;
+import org.jeffstein.gambling.games.CrapsGUI;
+import org.jeffstein.gambling.games.CrapsGame;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,8 +24,9 @@ public class CrapsCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        CrapsBettingGUI gui = new CrapsBettingGUI(plugin, player);
-        gui.openInventory();
+        CrapsGame game = new CrapsGame(plugin, player);
+        CrapsGUI crapsGUI = new CrapsGUI(plugin, player, game);
+        crapsGUI.openInventory();
         return true;
     }
 }
