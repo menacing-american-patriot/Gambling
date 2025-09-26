@@ -1,5 +1,5 @@
 name: Gambling
-version: '1.2.6'
+version: '1.2.7'
 main: org.jeffstein.gambling.Gambling
 api-version: '1.21'
 load: STARTUP
@@ -51,3 +51,15 @@ commands:
     description: Play a game of craps!
     usage: /craps
     aliases: [crp, cps]
+  crash:
+    description: Play the crash gambling game!
+    usage: /crash
+    aliases: [csh, crs]
+  plinko:
+    description: Play the Plinko ball drop game!
+    usage: /plinko
+    aliases: [plk, pln]
+  wheel:
+    description: Play the Wheel of Fortune game!
+    usage: /wheel
+    aliases: [wof, fortune]

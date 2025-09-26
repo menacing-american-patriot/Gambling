@@ -1,0 +1,338 @@
+package org.jeffstein.gambling.games;
+
+import org.jeffstein.gambling.Gambling;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+
+public class WheelOfFortuneGame implements InventoryHolder {
+
+    private final Gambling plugin;
+    private final Player player;
+    private final Inventory gui;
+    private final Economy economy = Gambling.getEconomy();
+    
+    private final Map<String, Double> playerBets = new HashMap<>();
+    private boolean spinning = false;
+    
+    // Wheel segments (24 segments total)
+    private final String[] wheelSegments = {
+        "1x", "LOSE", "2x", "LOSE", "5x", "LOSE", "3x", "LOSE",
+        "10x", "LOSE", "2x", "LOSE", "1x", "LOSE", "4x", "LOSE",
+        "20x", "LOSE", "3x", "LOSE", "1x", "LOSE", "50x", "JACKPOT"
+    };
+    
+    private final Material[] segmentColors = {
+        Material.WHITE_CONCRETE, Material.RED_CONCRETE, Material.YELLOW_CONCRETE, Material.RED_CONCRETE,
+        Material.LIME_CONCRETE, Material.RED_CONCRETE, Material.ORANGE_CONCRETE, Material.RED_CONCRETE,
+        Material.BLUE_CONCRETE, Material.RED_CONCRETE, Material.YELLOW_CONCRETE, Material.RED_CONCRETE,
+        Material.WHITE_CONCRETE, Material.RED_CONCRETE, Material.PURPLE_CONCRETE, Material.RED_CONCRETE,
+        Material.CYAN_CONCRETE, Material.RED_CONCRETE, Material.ORANGE_CONCRETE, Material.RED_CONCRETE,
+        Material.WHITE_CONCRETE, Material.RED_CONCRETE, Material.DIAMOND_BLOCK, Material.EMERALD_BLOCK
+    };
+    
+    // Wheel positions in GUI (circular arrangement)
+    private final int[] wheelPositions = {
+        4, 5, 6, 7, 8, 17, 26, 35, 44, 43, 42, 41,
+        40, 31, 22, 13, 12, 11, 10, 9, 18, 27, 36, 45
+    };
+
+    public WheelOfFortuneGame(Gambling plugin, Player player) {
+        this.plugin = plugin;
+        this.player = player;
+        this.gui = Bukkit.createInventory(this, 54, ChatColor.GOLD + "🎡 WHEEL OF FORTUNE 🎡");
+        initializeWheel();
+    }
+
+    private void initializeWheel() {
+        // Fill background
+        ItemStack background = createGuiItem(Material.BLACK_STAINED_GLASS_PANE, " ");
+        for (int i = 0; i < 54; i++) {
+            gui.setItem(i, background);
+        }
+
+        // Create wheel segments
+        for (int i = 0; i < wheelSegments.length; i++) {
+            String segment = wheelSegments[i];
+            Material color = segmentColors[i];
+            int position = wheelPositions[i];
+            
+            ChatColor textColor = getTextColor(segment);
+            gui.setItem(position, createGuiItem(color, textColor + segment,
+                    ChatColor.GRAY + "Wheel segment",
+                    ChatColor.YELLOW + "Bet on this segment to win!"));
+        }
+
+        // Center pointer
+        gui.setItem(23, createGuiItem(Material.ARROW, ChatColor.WHITE + "" + ChatColor.BOLD + "POINTER",
+                ChatColor.GRAY + "This shows the winning segment"));
+
+        // Betting controls
+        setupBettingControls();
+
+        // Spin button
+        gui.setItem(49, createGuiItem(Material.EMERALD_BLOCK, ChatColor.GREEN + "" + ChatColor.BOLD + "SPIN WHEEL",
+                ChatColor.GRAY + "Click to spin the wheel!",
+                ChatColor.YELLOW + "Make sure to place bets first"));
+
+        // Back button
+        gui.setItem(45, createGuiItem(Material.OAK_DOOR, ChatColor.YELLOW + "Back",
+                ChatColor.GRAY + "Close Wheel of Fortune"));
+    }
+
+    private void setupBettingControls() {
+        // Betting options
+        gui.setItem(46, createGuiItem(Material.GOLD_NUGGET, ChatColor.GOLD + "Bet on Numbers",
+                ChatColor.GRAY + "Bet 100 on all number segments",
+                ChatColor.GREEN + "Click to place bet"));
+
+        gui.setItem(47, createGuiItem(Material.REDSTONE, ChatColor.RED + "Bet on LOSE",
+                ChatColor.GRAY + "Bet 100 on all LOSE segments",
+                ChatColor.GREEN + "Click to place bet"));
+
+        gui.setItem(48, createGuiItem(Material.DIAMOND, ChatColor.AQUA + "Bet on JACKPOT",
+                ChatColor.GRAY + "Bet 100 on JACKPOT segment",
+                ChatColor.GREEN + "Click to place bet"));
+
+        String[] betSummary = getBetSummary();
+        gui.setItem(50, createGuiItem(Material.BOOK, ChatColor.YELLOW + "Your Bets", betSummary));
+    }
+
+    private String[] getBetSummary() {
+        if (playerBets.isEmpty()) {
+            return new String[]{ChatColor.GRAY + "No bets placed"};
+        }
+        
+        String[] summary = new String[playerBets.size() + 1];
+        summary[0] = ChatColor.GRAY + "Current bets:";
+        int i = 1;
+        for (Map.Entry<String, Double> entry : playerBets.entrySet()) {
+            summary[i] = ChatColor.WHITE + entry.getKey() + ": " + economy.format(entry.getValue());
+            i++;
+        }
+        return summary;
+    }
+
+    private ChatColor getTextColor(String segment) {
+        switch (segment) {
+            case "LOSE": return ChatColor.RED;
+            case "JACKPOT": return ChatColor.GOLD;
+            case "50x": return ChatColor.AQUA;
+            case "20x": return ChatColor.BLUE;
+            case "10x": return ChatColor.GREEN;
+            default: return ChatColor.WHITE;
+        }
+    }
+
+    public boolean placeBet(String betType, double amount) {
+        if (spinning) {
+            player.sendActionBar(ChatColor.RED + "Cannot bet while wheel is spinning!");
+            return false;
+        }
+
+        if (economy.getBalance(player) < amount) {
+            player.sendActionBar(ChatColor.RED + "Insufficient funds!");
+            return false;
+        }
+
+        economy.withdrawPlayer(player, amount);
+        playerBets.put(betType, playerBets.getOrDefault(betType, 0.0) + amount);
+        
+        player.sendActionBar(ChatColor.GREEN + "Bet placed: " + economy.format(amount) + " on " + betType);
+        setupBettingControls(); // Update bet display
+        return true;
+    }
+
+    public void spinWheel() {
+        if (spinning) {
+            player.sendActionBar(ChatColor.RED + "Wheel is already spinning!");
+            return;
+        }
+
+        if (playerBets.isEmpty()) {
+            player.sendActionBar(ChatColor.RED + "Place a bet first!");
+            return;
+        }
+
+        spinning = true;
+        player.sendActionBar(ChatColor.YELLOW + "Spinning the wheel...");
+        
+        // Determine winning segment
+        int winningIndex = ThreadLocalRandom.current().nextInt(wheelSegments.length);
+        String winningSegment = wheelSegments[winningIndex];
+        
+        // Animate the spin
+        animateSpin(winningIndex, winningSegment);
+    }
+
+    private void animateSpin(int finalIndex, String winningSegment) {
+        new BukkitRunnable() {
+            int currentIndex = 0;
+            int ticks = 0;
+            final int totalTicks = 60; // 3 seconds
+            int ticksPerSegment = 2; // Start fast
+
+            @Override
+            public void run() {
+                if (ticks >= totalTicks) {
+                    // Spin complete
+                    highlightWinningSegment(finalIndex);
+                    calculateWinnings(winningSegment);
+                    spinning = false;
+                    this.cancel();
+                    return;
+                }
+
+                // Clear previous highlight
+                clearHighlights();
+
+                // Highlight current segment
+                highlightSegment(currentIndex);
+
+                // Play tick sound
+                float pitch = 1.0f + (ticks * 0.02f);
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, pitch);
+
+                // Slow down as we approach the end
+                if (ticks > totalTicks * 0.7) {
+                    ticksPerSegment = 8; // Very slow
+                } else if (ticks > totalTicks * 0.5) {
+                    ticksPerSegment = 4; // Medium
+                }
+
+                if (ticks % ticksPerSegment == 0) {
+                    currentIndex = (currentIndex + 1) % wheelSegments.length;
+                }
+
+                ticks++;
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+    }
+
+    private void highlightSegment(int index) {
+        int position = wheelPositions[index];
+        String segment = wheelSegments[index];
+        ChatColor textColor = getTextColor(segment);
+        
+        gui.setItem(position, createGuiItem(Material.GLOWSTONE, textColor + "" + ChatColor.BOLD + segment,
+                ChatColor.YELLOW + "Current position"));
+    }
+
+    private void highlightWinningSegment(int index) {
+        int position = wheelPositions[index];
+        String segment = wheelSegments[index];
+        
+        gui.setItem(position, createGuiItem(Material.BEACON, ChatColor.GOLD + "" + ChatColor.BOLD + segment,
+                ChatColor.GREEN + "WINNING SEGMENT!"));
+    }
+
+    private void clearHighlights() {
+        for (int i = 0; i < wheelSegments.length; i++) {
+            String segment = wheelSegments[i];
+            Material color = segmentColors[i];
+            int position = wheelPositions[i];
+            ChatColor textColor = getTextColor(segment);
+            
+            gui.setItem(position, createGuiItem(color, textColor + segment,
+                    ChatColor.GRAY + "Wheel segment"));
+        }
+    }
+
+    private void calculateWinnings(String winningSegment) {
+        double totalWinnings = 0;
+        boolean won = false;
+
+        // Check each bet type
+        for (Map.Entry<String, Double> bet : playerBets.entrySet()) {
+            String betType = bet.getKey();
+            double betAmount = bet.getValue();
+            double payout = 0;
+
+            if (betType.equals("Numbers") && !winningSegment.equals("LOSE") && !winningSegment.equals("JACKPOT")) {
+                // Won on numbers bet
+                String multiplierStr = winningSegment.replace("x", "");
+                double multiplier = Double.parseDouble(multiplierStr);
+                payout = betAmount * multiplier;
+            } else if (betType.equals("LOSE") && winningSegment.equals("LOSE")) {
+                // Won on LOSE bet (2:1 payout)
+                payout = betAmount * 2;
+            } else if (betType.equals("JACKPOT") && winningSegment.equals("JACKPOT")) {
+                // Won jackpot (50:1 payout + current jackpot)
+                payout = betAmount * 50 + Gambling.getJackpot().getJackpot();
+                Gambling.getJackpot().resetJackpot();
+            }
+
+            if (payout > 0) {
+                totalWinnings += payout;
+                won = true;
+            }
+        }
+
+        // Show results
+        if (won) {
+            economy.depositPlayer(player, totalWinnings);
+            player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "YOU WON!",
+                           ChatColor.GOLD + "+" + economy.format(totalWinnings) + " on " + winningSegment, 10, 60, 20);
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
+            
+            if (winningSegment.equals("JACKPOT")) {
+                Bukkit.broadcastMessage(ChatColor.GOLD + player.getName() + " won the Wheel of Fortune JACKPOT!");
+            }
+            
+            Gambling.getLeaderboard().addWin(player.getUniqueId(), totalWinnings - getTotalBets());
+        } else {
+            player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "YOU LOST",
+                           ChatColor.GRAY + "Landed on " + winningSegment, 10, 40, 10);
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            Gambling.getLeaderboard().addLoss(player.getUniqueId(), getTotalBets());
+        }
+
+        // Add to jackpot
+        Gambling.getJackpot().addToJackpot(getTotalBets() * 0.1);
+
+        // Clear bets for next round
+        playerBets.clear();
+        setupBettingControls();
+    }
+
+    private double getTotalBets() {
+        return playerBets.values().stream().mapToDouble(Double::doubleValue).sum();
+    }
+
+    private ItemStack createGuiItem(Material material, String name, String... lore) {
+        ItemStack item = new ItemStack(material, 1);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(name);
+            meta.setLore(Arrays.asList(lore));
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    public void openInventory() {
+        player.openInventory(gui);
+    }
+
+    @Override
+    public Inventory getInventory() {
+        return gui;
+    }
+
+    public boolean isSpinning() {
+        return spinning;
+    }
+}
