@@ -18,6 +18,10 @@ public class CoinflipCommand implements CommandExecutor {
     // Get the Vault economy API instance from your main class
     private final Economy economy = Gambling.getEconomy();
 
+    // CASINO HOUSE EDGE SETTINGS
+    private static final double WIN_CHANCE = 0.475;  // 47.5% chance to win (5% house edge)
+    private static final double PAYOUT_MULTIPLIER = 1.95; // 1.95x payout instead of 2x
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // 1. Command can only be run by a player
@@ -60,23 +64,31 @@ public class CoinflipCommand implements CommandExecutor {
             return true;
         }
 
-        // 5. Determine the outcome (50/50 chance) [3, 4]
-        boolean won = ThreadLocalRandom.current().nextBoolean();
+        // 5. Determine the outcome with HOUSE EDGE
+        // Casino gets 5% house edge: 47.5% win chance + 1.95x payout = profitable
+        double randomValue = ThreadLocalRandom.current().nextDouble();
+        boolean won = randomValue < WIN_CHANCE;
 
         // 6. Handle the result
         if (won) {
-            double winnings = betAmount * 2;
+            // Payout is 1.95x instead of 2x to maintain house edge
+            double winnings = betAmount * PAYOUT_MULTIPLIER;
             economy.depositPlayer(player, winnings);
-            Gambling.getLeaderboard().addWin(player.getUniqueId(), betAmount);
-            player.sendMessage(ChatColor.GOLD + "Coinflip... " + ChatColor.GREEN + "You won! " +
-                    ChatColor.GOLD + "You received " + economy.format(winnings) + ".");
+            double profit = winnings - betAmount;
+            Gambling.getLeaderboard().addWin(player.getUniqueId(), profit);
 
-            // Fun effects for winning [5, 6]
+            // Add chat message for visibility
+            player.sendMessage(ChatColor.GREEN + "[COINFLIP] " + ChatColor.BOLD + "YOU WON! " +
+                    ChatColor.GOLD + "+" + economy.format(profit) + " (1.95x payout)");
+
+            // Fun effects for winning
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
         } else {
             Gambling.getLeaderboard().addLoss(player.getUniqueId(), betAmount);
-            player.sendMessage(ChatColor.GOLD + "Coinflip... " + ChatColor.RED + "You lost! " +
-                    ChatColor.GOLD + "You lost " + economy.format(betAmount) + ".");
+
+            // Add chat message for visibility
+            player.sendMessage(ChatColor.RED + "[COINFLIP] " + ChatColor.BOLD + "YOU LOST! " +
+                    ChatColor.GRAY + "-" + economy.format(betAmount));
 
             // Effects for losing
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
