@@ -2,6 +2,7 @@ package org.jeffstein.gambling.commands;
 
 import org.jeffstein.gambling.Gambling;
 import org.jeffstein.gambling.games.BlackjackGame;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -31,47 +32,76 @@ public class BlackjackCommand implements CommandExecutor {
         UUID playerId = player.getUniqueId();
 
         if (args.length == 0) {
-            // Start a new game
             if (games.containsKey(playerId)) {
-                player.sendMessage("You already have a game in progress.");
-                return true;
+                games.get(playerId).status();
+            } else {
+                player.sendMessage(ChatColor.YELLOW + "Usage: /blackjack <bet> | /blackjack hit | stand | double | status");
             }
-            player.sendMessage("Usage: /blackjack <bet>");
             return true;
         }
 
         String subCommand = args[0].toLowerCase();
 
-        if (subCommand.equals("hit")) {
-            if (!games.containsKey(playerId)) {
-                player.sendMessage("You don't have a game in progress. Use /blackjack <bet> to start one.");
+        switch (subCommand) {
+            case "hit":
+                if (!games.containsKey(playerId)) {
+                    player.sendMessage(ChatColor.RED + "No active blackjack game. Use /blackjack <bet> to start one.");
+                    return true;
+                }
+                games.get(playerId).hit();
                 return true;
-            }
-            games.get(playerId).hit();
-        } else if (subCommand.equals("stand")) {
-            if (!games.containsKey(playerId)) {
-                player.sendMessage("You don't have a game in progress. Use /blackjack <bet> to start one.");
+            case "stand":
+                if (!games.containsKey(playerId)) {
+                    player.sendMessage(ChatColor.RED + "No active blackjack game. Use /blackjack <bet> to start one.");
+                    return true;
+                }
+                games.get(playerId).stand();
                 return true;
-            }
-            games.get(playerId).stand();
-        } else {
-            // Assume the argument is a bet amount
-            double bet;
-            try {
-                bet = Double.parseDouble(args[0]);
-            } catch (NumberFormatException e) {
-                player.sendMessage("Invalid bet amount.");
+            case "double":
+                if (!games.containsKey(playerId)) {
+                    player.sendMessage(ChatColor.RED + "No active blackjack game. Use /blackjack <bet> to start one.");
+                    return true;
+                }
+                games.get(playerId).doubleDown();
                 return true;
-            }
+            case "status":
+                if (!games.containsKey(playerId)) {
+                    player.sendMessage(ChatColor.RED + "No active blackjack game. Use /blackjack <bet> to start one.");
+                    return true;
+                }
+                games.get(playerId).status();
+                return true;
+            case "help":
+                player.sendMessage(ChatColor.YELLOW + "Blackjack commands:");
+                player.sendMessage(ChatColor.GRAY + " /blackjack <bet> " + ChatColor.DARK_GRAY + "- start a new game");
+                player.sendMessage(ChatColor.GRAY + " /blackjack hit " + ChatColor.DARK_GRAY + "- take another card");
+                player.sendMessage(ChatColor.GRAY + " /blackjack stand " + ChatColor.DARK_GRAY + "- hold your total");
+                player.sendMessage(ChatColor.GRAY + " /blackjack double " + ChatColor.DARK_GRAY + "- double wager, draw one card");
+                player.sendMessage(ChatColor.GRAY + " /blackjack status " + ChatColor.DARK_GRAY + "- show table state");
+                return true;
+        }
 
-            if (games.containsKey(playerId)) {
-                player.sendMessage("You already have a game in progress. Use /blackjack hit or /blackjack stand to continue.");
-                return true;
-            }
+        double bet;
+        try {
+            bet = Double.parseDouble(args[0]);
+        } catch (NumberFormatException e) {
+            player.sendMessage(ChatColor.RED + "Invalid bet amount.");
+            return true;
+        }
 
-            BlackjackGame game = new BlackjackGame(plugin, player, bet, games);
-            games.put(playerId, game);
-            game.start();
+        if (games.containsKey(playerId)) {
+            player.sendMessage(ChatColor.RED + "You already have a game in progress. Use /blackjack hit or /blackjack stand to continue.");
+            return true;
+        }
+
+        BlackjackGame game = new BlackjackGame(plugin, player, bet, games);
+        games.put(playerId, game);
+        boolean started = game.start();
+        if (!started) {
+            games.remove(playerId);
+        }
+            if (!games.containsKey(playerId)) {
+            player.sendMessage(ChatColor.RED + "Failed to start blackjack game.");
         }
         return true;
     }

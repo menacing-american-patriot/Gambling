@@ -23,6 +23,16 @@ public class KenoCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+
+        // Optional fast-path: /keno <amount>
+        if (args.length >= 1) {
+            try {
+                double amount = Double.parseDouble(args[0]);
+                org.jeffstein.gambling.listeners.KenoListener listener = org.jeffstein.gambling.listeners.KenoListener.getInstance();
+                if (listener != null) listener.setBetForPlayer(player, amount);
+            } catch (NumberFormatException ignored) {}
+        }
+
         KenoGUI gui = new KenoGUI(plugin, player);
         gui.openInventory();
         return true;

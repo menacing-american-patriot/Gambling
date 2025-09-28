@@ -23,11 +23,27 @@ public class MinesCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        
-        // Create a new Mines game for this player
+
         MinesGame minesGame = new MinesGame(plugin, player);
+
+        // Optional fast-path: /mines <bet> [start]
+        if (args.length >= 1) {
+            try {
+                double bet = Double.parseDouble(args[0]);
+                minesGame.setBetAmount(bet);
+                if (args.length >= 2 && args[1].equalsIgnoreCase("start")) {
+                    // Open then immediately start so GUI shows animations/state
+                    minesGame.openInventory();
+                    minesGame.startGame();
+                    return true;
+                }
+            } catch (NumberFormatException ignored) {
+                // fall back to GUI
+            }
+        }
+
         minesGame.openInventory();
-        
+
         return true;
     }
 }

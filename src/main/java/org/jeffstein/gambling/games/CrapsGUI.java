@@ -4,163 +4,232 @@ import org.jeffstein.gambling.Gambling;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
-import java.util.Map;
+import java.util.List;
 
 public class CrapsGUI implements InventoryHolder {
 
-    private final Gambling plugin;
+    private static final int STATUS_SLOT = 4;
+    private static final int POINT_SLOT = 13;
+    private static final int DIE_ONE_SLOT = 20;
+    private static final int TOTAL_SLOT = 22;
+    private static final int DIE_TWO_SLOT = 24;
+    private static final int PASS_LINE_SLOT = 30;
+    private static final int DONT_PASS_SLOT = 32;
+    private static final int CURRENT_BET_SLOT = 39;
+    private static final int ACTION_SLOT = 44;
+    private static final int SUMMARY_SLOT = 49;
+    private static final int[] HISTORY_SLOTS = {0, 1, 2, 3, 4, 5};
+
     private final Player player;
     private final Inventory gui;
-    private final CrapsGame game;
     private double currentBet = 100.0;
 
-    public CrapsGUI(Gambling plugin, Player player, CrapsGame game) {
-        this.plugin = plugin;
+    public CrapsGUI(Player player) {
         this.player = player;
-        this.game = game;
-        this.gui = Bukkit.createInventory(this, 54, ChatColor.GREEN + "" + ChatColor.BOLD + "🎲 CRAPS 🎲");
-        initializeItems();
+        this.gui = Bukkit.createInventory(this, 54, ChatColor.DARK_GREEN + "Craps Table");
+        initializeLayout();
     }
 
-    private void initializeItems() {
-        // Fill background
-        ItemStack background = createGuiItem(Material.BLACK_STAINED_GLASS_PANE, " ");
-        for (int i = 0; i < 54; i++) {
+    private void initializeLayout() {
+        fillBackground();
+
+        gui.setItem(STATUS_SLOT, createGuiItem(Material.EMERALD,
+            ChatColor.GREEN + "" + ChatColor.BOLD + "WELCOME TO CRAPS",
+            ChatColor.GRAY + "Place a Pass or Don't Pass bet",
+            ChatColor.YELLOW + "Click the dice to roll"));
+
+        gui.setItem(POINT_SLOT, createGuiItem(Material.YELLOW_CONCRETE,
+            ChatColor.GOLD + "Come Out Roll",
+            ChatColor.GRAY + "No point established"));
+
+        gui.setItem(DIE_ONE_SLOT, createGuiItem(Material.WHITE_WOOL,
+            ChatColor.WHITE + "Die One",
+            ChatColor.DARK_GRAY + "Waiting for roll"));
+
+        gui.setItem(TOTAL_SLOT, createGuiItem(Material.GOLD_BLOCK,
+            ChatColor.GOLD + "Total",
+            ChatColor.DARK_GRAY + "Roll to begin"));
+
+        gui.setItem(DIE_TWO_SLOT, createGuiItem(Material.WHITE_WOOL,
+            ChatColor.WHITE + "Die Two",
+            ChatColor.DARK_GRAY + "Waiting for roll"));
+
+        gui.setItem(PASS_LINE_SLOT, createGuiItem(Material.LIME_CONCRETE,
+            ChatColor.GREEN + "Pass Line",
+            ChatColor.GRAY + "Pays 1:1 on 7 or 11",
+            ChatColor.GRAY + "Loses on 2, 3, 12"));
+
+        gui.setItem(DONT_PASS_SLOT, createGuiItem(Material.RED_CONCRETE,
+            ChatColor.RED + "Don't Pass",
+            ChatColor.GRAY + "Pays 1:1 on 2, 3, 12 push",
+            ChatColor.GRAY + "Loses on 7 or 11"));
+
+        gui.setItem(SUMMARY_SLOT, createGuiItem(Material.MAP,
+            ChatColor.GOLD + "Last Outcome",
+            ChatColor.GRAY + "No rolls yet"));
+
+        gui.setItem(37, createGuiItem(Material.RED_STAINED_GLASS_PANE,
+            ChatColor.RED + "-100", ChatColor.GRAY + "Decrease bet"));
+        gui.setItem(38, createGuiItem(Material.RED_STAINED_GLASS_PANE,
+            ChatColor.RED + "-50", ChatColor.GRAY + "Decrease bet"));
+
+        gui.setItem(CURRENT_BET_SLOT, createGuiItem(Material.GOLD_INGOT,
+            ChatColor.GOLD + "Current Bet",
+            ChatColor.WHITE + Gambling.getEconomy().format(currentBet)));
+
+        gui.setItem(42, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
+            ChatColor.GREEN + "+50", ChatColor.GRAY + "Increase bet"));
+        gui.setItem(43, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
+            ChatColor.GREEN + "+100", ChatColor.GRAY + "Increase bet"));
+
+        gui.setItem(ACTION_SLOT, createGuiItem(Material.DIAMOND_BLOCK,
+            ChatColor.AQUA + "" + ChatColor.BOLD + "ROLL DICE",
+            ChatColor.GRAY + "Requires an active bet"));
+
+        gui.setItem(45, createGuiItem(Material.OAK_DOOR,
+            ChatColor.YELLOW + "Leave Table",
+            ChatColor.GRAY + "Close the Craps menu"));
+
+        for (int slot : HISTORY_SLOTS) {
+            gui.setItem(slot, createGuiItem(Material.GRAY_STAINED_GLASS_PANE,
+                ChatColor.GRAY + "No history",
+                ChatColor.DARK_GRAY + "Roll to fill"));
+        }
+    }
+
+    private void fillBackground() {
+        ItemStack background = createGuiItem(Material.GREEN_STAINED_GLASS_PANE, " ");
+        for (int i = 0; i < gui.getSize(); i++) {
             gui.setItem(i, background);
         }
-
-        // Game title and status
-        updateGameStatus();
-
-        // Betting controls
-        setupBettingControls();
-
-        // Main betting areas
-        setupBettingAreas();
-
-        // Dice display area
-        updateDiceDisplay();
-
-        // Back button
-        gui.setItem(45, createGuiItem(Material.OAK_DOOR, ChatColor.YELLOW + "Back",
-                ChatColor.GRAY + "Close Craps game"));
     }
 
-    private void updateGameStatus() {
-        String gamePhase;
-        String pointText;
-        Material statusMaterial;
+    public void setStatus(String title, String... description) {
+        gui.setItem(STATUS_SLOT, createGuiItem(Material.EMERALD,
+            ChatColor.GREEN + "" + ChatColor.BOLD + title,
+            description));
+    }
 
-        if (game.getGameState() == CrapsGame.GameState.COME_OUT) {
-            gamePhase = "COME OUT ROLL";
-            pointText = "No point set";
-            statusMaterial = Material.YELLOW_CONCRETE;
+    public void setPointDisplay(CrapsGame.GameState state, int point) {
+        if (state == CrapsGame.GameState.COME_OUT) {
+            gui.setItem(POINT_SLOT, createGuiItem(Material.YELLOW_CONCRETE,
+                ChatColor.GOLD + "Come Out Roll",
+                ChatColor.GRAY + "No point established"));
         } else {
-            gamePhase = "POINT PHASE";
-            pointText = "Point: " + game.getPoint();
-            statusMaterial = Material.ORANGE_CONCRETE;
-        }
-
-        gui.setItem(4, createGuiItem(statusMaterial, ChatColor.GOLD + "" + ChatColor.BOLD + gamePhase,
-                ChatColor.WHITE + pointText,
-                ChatColor.GRAY + "Current game phase"));
-    }
-
-    private void setupBettingControls() {
-        // Bet amount controls
-        gui.setItem(37, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100",
-                ChatColor.GRAY + "Decrease bet by 100"));
-        gui.setItem(38, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-50",
-                ChatColor.GRAY + "Decrease bet by 50"));
-
-        gui.setItem(40, createGuiItem(Material.GOLD_INGOT, ChatColor.GOLD + "Current Bet",
-                ChatColor.WHITE + Gambling.getEconomy().format(currentBet),
-                ChatColor.GRAY + "Your bet amount"));
-
-        gui.setItem(42, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+50",
-                ChatColor.GRAY + "Increase bet by 50"));
-        gui.setItem(43, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100",
-                ChatColor.GRAY + "Increase bet by 100"));
-    }
-
-    private void setupBettingAreas() {
-        // Pass Line bet (most common bet)
-        boolean hasPassBet = game.getBets().containsKey("Pass Line");
-        gui.setItem(19, createGuiItem(hasPassBet ? Material.LIME_CONCRETE : Material.GREEN_CONCRETE,
-                ChatColor.GREEN + "" + ChatColor.BOLD + "PASS LINE",
-                ChatColor.GRAY + "Bet that shooter will win",
-                hasPassBet ? ChatColor.WHITE + "Current bet: " + Gambling.getEconomy().format(game.getBets().get("Pass Line")) :
-                           ChatColor.YELLOW + "Click to bet " + Gambling.getEconomy().format(currentBet)));
-
-        // Don't Pass bet
-        boolean hasDontPassBet = game.getBets().containsKey("Don't Pass Line");
-        gui.setItem(20, createGuiItem(hasDontPassBet ? Material.RED_CONCRETE : Material.ORANGE_CONCRETE,
-                ChatColor.RED + "" + ChatColor.BOLD + "DON'T PASS",
-                ChatColor.GRAY + "Bet against the shooter",
-                hasDontPassBet ? ChatColor.WHITE + "Current bet: " + Gambling.getEconomy().format(game.getBets().get("Don't Pass Line")) :
-                               ChatColor.YELLOW + "Click to bet " + Gambling.getEconomy().format(currentBet)));
-
-        // Roll button
-        gui.setItem(49, createGuiItem(Material.DIAMOND_BLOCK, ChatColor.AQUA + "" + ChatColor.BOLD + "🎲 ROLL DICE 🎲",
-                ChatColor.GRAY + "Roll the dice!",
-                game.getBets().isEmpty() ? ChatColor.RED + "Place a bet first!" : ChatColor.GREEN + "Click to roll!"));
-    }
-
-    private void updateDiceDisplay() {
-        // Show last roll if any
-        if (game.getLastRoll() != null) {
-            int[] lastRoll = game.getLastRoll();
-            int total = lastRoll[0] + lastRoll[1];
-
-            gui.setItem(12, createGuiItem(Material.QUARTZ_BLOCK, ChatColor.WHITE + "Die 1",
-                    ChatColor.GOLD + "Rolled: " + lastRoll[0]));
-            gui.setItem(13, createGuiItem(Material.QUARTZ_BLOCK, ChatColor.WHITE + "Die 2",
-                    ChatColor.GOLD + "Rolled: " + lastRoll[1]));
-            gui.setItem(14, createGuiItem(Material.GOLD_BLOCK, ChatColor.GOLD + "" + ChatColor.BOLD + "TOTAL",
-                    ChatColor.WHITE + "Sum: " + total,
-                    ChatColor.GRAY + "Last roll result"));
-        } else {
-            gui.setItem(12, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.GRAY + "Die 1",
-                    ChatColor.DARK_GRAY + "Not rolled yet"));
-            gui.setItem(13, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.GRAY + "Die 2",
-                    ChatColor.DARK_GRAY + "Not rolled yet"));
-            gui.setItem(14, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.GRAY + "Total",
-                    ChatColor.DARK_GRAY + "Roll dice to see result"));
+            gui.setItem(POINT_SLOT, createGuiItem(Material.ORANGE_CONCRETE,
+                ChatColor.GOLD + "Point Phase",
+                ChatColor.WHITE + "Point: " + point,
+                ChatColor.GRAY + "Pass needs " + point + ", 7 loses"));
         }
     }
 
-    public void update() {
-        updateGameStatus();
-        setupBettingAreas();
-        updateDiceDisplay();
+    public void setDiceDisplay(int dieOne, int dieTwo) {
+        int total = dieOne + dieTwo;
+
+        gui.setItem(DIE_ONE_SLOT, createGuiItem(Material.WHITE_WOOL,
+            ChatColor.WHITE + "Die One",
+            ChatColor.GOLD + "Rolled: " + dieOne));
+
+        gui.setItem(DIE_TWO_SLOT, createGuiItem(Material.WHITE_WOOL,
+            ChatColor.WHITE + "Die Two",
+            ChatColor.GOLD + "Rolled: " + dieTwo));
+
+        gui.setItem(TOTAL_SLOT, createGuiItem(Material.GOLD_BLOCK,
+            ChatColor.GOLD + "Total",
+            ChatColor.WHITE + "Sum: " + total));
+    }
+
+    public void showRollingFrame(int dieOne, int dieTwo) {
+        gui.setItem(DIE_ONE_SLOT, createGuiItem(Material.WHITE_WOOL,
+            ChatColor.WHITE + "Die One",
+            ChatColor.YELLOW + "Rolling... " + dieOne));
+        gui.setItem(DIE_TWO_SLOT, createGuiItem(Material.WHITE_WOOL,
+            ChatColor.WHITE + "Die Two",
+            ChatColor.YELLOW + "Rolling... " + dieTwo));
+        gui.setItem(TOTAL_SLOT, createGuiItem(Material.GOLD_BLOCK,
+            ChatColor.GOLD + "Total",
+            ChatColor.YELLOW + "Rolling..."));
+    }
+
+    public void highlightBets(double passAmount, double dontPassAmount) {
+        updateBetTile(PASS_LINE_SLOT, passAmount, Material.LIME_CONCRETE, ChatColor.GREEN + "Pass Line");
+        updateBetTile(DONT_PASS_SLOT, dontPassAmount, Material.RED_CONCRETE, ChatColor.RED + "Don't Pass");
+    }
+
+    private void updateBetTile(int slot, double amount, Material material, String title) {
+        ItemStack item = createGuiItem(material,
+            title,
+            amount > 0 ? ChatColor.WHITE + "Bet: " + Gambling.getEconomy().format(amount)
+                       : ChatColor.GRAY + "Click to bet " + Gambling.getEconomy().format(currentBet));
+
+        if (amount > 0) {
+            item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                item.setItemMeta(meta);
+            }
+        }
+
+        gui.setItem(slot, item);
+    }
+
+    public void setActionReady(boolean enabled, boolean hasBets) {
+        if (!enabled) {
+            gui.setItem(ACTION_SLOT, createGuiItem(Material.REDSTONE_BLOCK,
+                ChatColor.RED + "Waiting",
+                ChatColor.GRAY + "Finish animation"));
+            return;
+        }
+
+        if (!hasBets) {
+            gui.setItem(ACTION_SLOT, createGuiItem(Material.BARRIER,
+                ChatColor.RED + "Place a Bet",
+                ChatColor.GRAY + "You need Pass or Don't Pass"));
+        } else {
+            gui.setItem(ACTION_SLOT, createGuiItem(Material.DIAMOND_BLOCK,
+                ChatColor.AQUA + "" + ChatColor.BOLD + "ROLL DICE",
+                ChatColor.GREEN + "Click to shoot!"));
+        }
+    }
+
+    public void setHistory(List<Integer> totals) {
+        for (int i = 0; i < HISTORY_SLOTS.length; i++) {
+            if (i < totals.size()) {
+                int total = totals.get(i);
+                gui.setItem(HISTORY_SLOTS[i], createGuiItem(Material.PAPER,
+                    ChatColor.YELLOW + "Roll: " + total));
+            } else {
+                gui.setItem(HISTORY_SLOTS[i], createGuiItem(Material.GRAY_STAINED_GLASS_PANE,
+                    ChatColor.GRAY + "No history"));
+            }
+        }
+    }
+
+    public void setSummary(String title, String... lines) {
+        gui.setItem(SUMMARY_SLOT, createGuiItem(Material.MAP,
+            ChatColor.GOLD + title,
+            lines));
     }
 
     public void adjustBet(double amount) {
         currentBet = Math.max(10.0, Math.min(10000.0, currentBet + amount));
-        setupBettingControls();
-        setupBettingAreas(); // Update betting areas to show new bet amounts
+        gui.setItem(CURRENT_BET_SLOT, createGuiItem(Material.GOLD_INGOT,
+            ChatColor.GOLD + "Current Bet",
+            ChatColor.WHITE + Gambling.getEconomy().format(currentBet)));
     }
 
     public double getCurrentBet() {
         return currentBet;
-    }
-
-    private ItemStack createGuiItem(Material material, String name, String... lore) {
-        ItemStack item = new ItemStack(material, 1);
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(name);
-            meta.setLore(Arrays.asList(lore));
-            item.setItemMeta(meta);
-        }
-        return item;
     }
 
     public void openInventory() {
@@ -170,5 +239,18 @@ public class CrapsGUI implements InventoryHolder {
     @Override
     public Inventory getInventory() {
         return gui;
+    }
+
+    private ItemStack createGuiItem(Material material, String name, String... lore) {
+        ItemStack item = new ItemStack(material, 1);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(name);
+            if (lore != null && lore.length > 0) {
+                meta.setLore(Arrays.asList(lore));
+            }
+            item.setItemMeta(meta);
+        }
+        return item;
     }
 }

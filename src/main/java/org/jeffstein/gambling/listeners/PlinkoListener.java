@@ -42,7 +42,9 @@ public class PlinkoListener implements Listener {
             int slot = event.getSlot();
 
             // Handle drop positions (top row, slots 0-8)
-            if (slot >= 0 && slot <= 8 && displayName.contains("Drop Here")) {
+            String strippedName = ChatColor.stripColor(displayName).toLowerCase();
+
+            if (slot >= 3 && slot <= 5 && (strippedName.contains("drop") || strippedName.contains("column"))) {
                 // The dropBall method now handles all feedback via GUI updates
                 plinkoGame.dropBall(slot);
                 // Play click sound for immediate feedback
@@ -54,6 +56,13 @@ public class PlinkoListener implements Listener {
                 plinkoGame.adjustBet(-100);
                 // Play click sound for immediate feedback
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
+            } else if (slot == 19 && displayName.contains("-10")) {
+                plinkoGame.adjustBet(-10);
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
+            }
+            else if (slot == 25 && displayName.contains("+10")) {
+                plinkoGame.adjustBet(10);
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
             }
             else if (slot == 26 && displayName.contains("+100")) {
                 plinkoGame.adjustBet(100);
@@ -61,16 +70,24 @@ public class PlinkoListener implements Listener {
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
             }
 
+            // Drop again button
+            else if (slot == 32 && displayName.toLowerCase().contains("drop again")) {
+                plinkoGame.dropAgain();
+            }
+
+            // Risk profile button
+            else if (slot == 17 && displayName.contains("Risk Mode")) {
+                plinkoGame.cycleRiskProfile();
+            }
+
             // Handle back button
-            else if (slot == 53 && displayName.contains("Back")) {
+            else if (slot == 53) {
                 if (plinkoGame.isBallDropping()) {
-                    // Play error sound instead of hidden message
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-                    return;
+                } else {
+                    player.closeInventory();
+                    player.sendMessage(ChatColor.GRAY + "Thanks for playing Plinko!");
                 }
-                player.closeInventory();
-                // Now message will be visible since GUI is closed
-                player.sendMessage(ChatColor.GRAY + "Thanks for playing Plinko!");
             }
         }
     }

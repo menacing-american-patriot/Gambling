@@ -159,8 +159,18 @@ public class CrashGUI implements InventoryHolder {
         setupBettingControls();
     }
 
+    public void setBet(double amount) {
+        currentBet = Math.max(10.0, Math.min(10000.0, amount));
+        setupBettingControls();
+    }
+
     public void adjustAutoCashout(double amount) {
         autoCashout = Math.max(1.01, Math.min(1000.0, autoCashout + amount));
+        setupGameControls();
+    }
+
+    public void setAutoCashoutValue(double value) {
+        autoCashout = Math.max(1.01, Math.min(1000.0, value));
         setupGameControls();
     }
 

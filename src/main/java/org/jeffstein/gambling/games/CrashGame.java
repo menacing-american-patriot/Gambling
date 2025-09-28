@@ -25,6 +25,7 @@ public class CrashGame {
     private boolean bettingPhase = true;
     private double crashPoint;
     private BukkitTask gameTask;
+    private BukkitTask bettingCountdownTask;
     
     private static final double MIN_BET = 10.0;
     private static final double MAX_BET = 10000.0;
@@ -91,6 +92,10 @@ public class CrashGame {
         // Sound + chat feedback for successful bet
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
         player.sendMessage(ChatColor.GREEN + "[CRASH] Bet placed: " + economy.format(amount));
+
+        if (bettingPhase) {
+            startBettingCountdown();
+        }
 
         return true;
     }
@@ -162,6 +167,14 @@ public class CrashGame {
     
     public void startGame() {
         if (gameRunning) return;
+
+        if (playerBets.isEmpty()) {
+            bettingPhase = true;
+            gameRunning = false;
+            return;
+        }
+
+        cancelBettingCountdown();
         
         bettingPhase = false;
         gameRunning = true;
@@ -244,32 +257,20 @@ public class CrashGame {
     }
     
     private void startNewRound() {
+        Set<UUID> previousPlayers = new HashSet<>(playerBets.keySet());
+
         playerBets.clear();
         playerAutoCashout.clear();
         cashedOutPlayers.clear();
+
         bettingPhase = true;
+        gameRunning = false;
+        currentMultiplier = 1.0;
         generateCrashPoint();
-        
-        broadcastToPlayers(ChatColor.GREEN + "🎰 New round starting! Place your bets! 🎰");
-        
-        // Start betting countdown
-        new BukkitRunnable() {
-            int countdown = BETTING_TIME;
-            
-            @Override
-            public void run() {
-                if (countdown <= 0) {
-                    startGame();
-                    this.cancel();
-                    return;
-                }
-                
-                if (countdown <= 5) {
-                    broadcastToPlayers(ChatColor.YELLOW + "Starting in " + countdown + "...");
-                }
-                countdown--;
-            }
-        }.runTaskTimer(plugin, 0L, 20L); // Every second
+
+        cancelBettingCountdown();
+
+        broadcastToPlayers(previousPlayers, ChatColor.GREEN + "🎰 New round starting! Place your bets! 🎰");
     }
     
     private void updateAllPlayers() {
@@ -278,8 +279,53 @@ public class CrashGame {
         // No need for hidden action bar messages that players can't see
     }
     
+    private void startBettingCountdown() {
+        if (bettingCountdownTask != null) {
+            return;
+        }
+
+        bettingCountdownTask = new BukkitRunnable() {
+            int countdown = BETTING_TIME;
+
+            @Override
+            public void run() {
+                if (!bettingPhase) {
+                    CrashGame.this.cancelBettingCountdown();
+                    return;
+                }
+
+                if (playerBets.isEmpty()) {
+                    countdown = BETTING_TIME;
+                    return;
+                }
+
+                if (countdown <= 0) {
+                    CrashGame.this.cancelBettingCountdown();
+                    startGame();
+                    return;
+                }
+
+                if (countdown <= 5) {
+                    broadcastToPlayers(ChatColor.YELLOW + "Starting in " + countdown + "...");
+                }
+                countdown--;
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
+    }
+
+    private void cancelBettingCountdown() {
+        if (bettingCountdownTask != null) {
+            bettingCountdownTask.cancel();
+            bettingCountdownTask = null;
+        }
+    }
+
     private void broadcastToPlayers(String message) {
-        for (UUID playerId : playerBets.keySet()) {
+        broadcastToPlayers(playerBets.keySet(), message);
+    }
+
+    private void broadcastToPlayers(Set<UUID> recipients, String message) {
+        for (UUID playerId : recipients) {
             Player player = Bukkit.getPlayer(playerId);
             if (player != null) {
                 player.sendMessage(message);
@@ -293,11 +339,14 @@ public class CrashGame {
     public double getCurrentMultiplier() { return currentMultiplier; }
     public Map<UUID, Double> getPlayerBets() { return playerBets; }
     public Set<UUID> getCashedOutPlayers() { return cashedOutPlayers; }
+    public Double getPlayerAutoCashout(UUID playerId) { return playerAutoCashout.get(playerId); }
     
     public void stopGame() {
         if (gameTask != null) {
             gameTask.cancel();
+            gameTask = null;
         }
+        cancelBettingCountdown();
         gameRunning = false;
         bettingPhase = false;
     }

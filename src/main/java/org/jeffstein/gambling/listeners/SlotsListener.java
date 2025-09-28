@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 public class SlotsListener implements Listener {
@@ -30,15 +31,36 @@ public class SlotsListener implements Listener {
                 return;
             }
 
-            // Check if they clicked the "Spin" button (slot 49)
-            if (event.getRawSlot() == 49) {
-                SlotMachine slotMachine = (SlotMachine) holder;
-                slotMachine.spin();
-            } else if (event.getRawSlot() == 45) { // Back button
-                Player player = (Player) event.getWhoClicked();
-                player.closeInventory();
-                player.sendActionBar(ChatColor.GRAY + "Thanks for playing slots!");
+            SlotMachine slotMachine = (SlotMachine) holder;
+            int slot = event.getRawSlot();
+
+            switch (slot) {
+                case 40 -> slotMachine.spin();
+                case 41 -> slotMachine.rebetAndSpin();
+                case 44 -> {
+                    Player player = (Player) event.getWhoClicked();
+                    player.closeInventory();
+                    player.sendActionBar(ChatColor.GRAY + "Thanks for playing slots!");
+                }
+                case 8 -> slotMachine.showPaytable();
+                case 10 -> slotMachine.adjustBet(-100);
+                case 11 -> slotMachine.adjustBet(-10);
+                case 15 -> slotMachine.adjustBet(10);
+                case 16 -> slotMachine.adjustBet(100);
+                default -> {}
             }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) {
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof SlotMachine machine) {
+            machine.sendSessionSummary(player);
+            player.sendActionBar(ChatColor.GRAY + "Thanks for playing slots!");
         }
     }
 }

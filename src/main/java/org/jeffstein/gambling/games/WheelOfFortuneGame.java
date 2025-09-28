@@ -269,6 +269,10 @@ public class WheelOfFortuneGame implements InventoryHolder {
         double totalWinnings = 0;
         boolean won = false;
 
+        if (player.getOpenInventory().getTopInventory().getHolder() == this) {
+            player.closeInventory();
+        }
+
         // Check each bet type
         for (Map.Entry<String, Double> bet : playerBets.entrySet()) {
             String betType = bet.getKey();

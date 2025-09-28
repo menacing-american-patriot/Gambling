@@ -24,6 +24,12 @@ import org.jeffstein.gambling.listeners.SlotsListener;
 import org.jeffstein.gambling.listeners.WheelOfFortuneListener;
 import org.jeffstein.gambling.listeners.CrapsListener;
 import org.jeffstein.gambling.games.PokerManager;
+import org.jeffstein.gambling.casino.CasinoBlockManager;
+import org.jeffstein.gambling.casino.CasinoBlockListener;
+import org.jeffstein.gambling.casino.PhysicalGameInterface;
+import org.jeffstein.gambling.casino.CasinoVisualEffects;
+import org.jeffstein.gambling.commands.CasinoBlockCommand;
+import org.jeffstein.gambling.config.GamblingConfig;
 
 import java.util.logging.Logger;
 
@@ -34,18 +40,37 @@ public final class Gambling extends JavaPlugin {
     private static Leaderboard leaderboard;
     private static Jackpot jackpot;
     private static PokerManager pokerManager;
+    private static CasinoBlockManager casinoBlockManager;
+    private static PhysicalGameInterface physicalGameInterface;
+    private static CasinoVisualEffects visualEffects;
+    private static GamblingConfig gamblingConfig;
 
     @Override
     public void onEnable() {
         if (!setupEconomy()) {
-            log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+            log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getName()));
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+        // Initialize configuration first
+        gamblingConfig = new GamblingConfig(this);
+
         leaderboard = new Leaderboard(this);
         jackpot = new Jackpot(this);
         pokerManager = new PokerManager(this);
-        log.info(String.format("[%s] has been enabled!", getDescription().getName()));
+
+        // Initialize casino block system (only if enabled in config)
+        if (gamblingConfig.isCasinoBlocksEnabled()) {
+            casinoBlockManager = new CasinoBlockManager(this);
+            physicalGameInterface = new PhysicalGameInterface(this, casinoBlockManager);
+            visualEffects = new CasinoVisualEffects(this);
+
+            // Initialize visual effects for existing blocks
+            if (gamblingConfig.isHologramsEnabled() || gamblingConfig.isParticlesEnabled()) {
+                visualEffects.initializeAllEffects(casinoBlockManager);
+            }
+        }
+        log.info(String.format("[%s] has been enabled!", getName()));
         BlackjackCommand blackjackCommand = new BlackjackCommand(this);
         getCommand("blackjack").setExecutor(blackjackCommand);
         getCommand("blackjack").setTabCompleter(new BlackjackTabCompleter(blackjackCommand.getGames()));
@@ -65,6 +90,11 @@ public final class Gambling extends JavaPlugin {
         getCommand("mines").setExecutor(new MinesCommand(this));
         getCommand("poker").setExecutor(new PokerCommand(this));
         getCommand("casino").setExecutor(new CasinoCommand(this));
+
+        // Register casino block command only if system is enabled
+        if (gamblingConfig.isCasinoBlocksEnabled()) {
+            getCommand("casinoblock").setExecutor(new CasinoBlockCommand(this, casinoBlockManager, physicalGameInterface));
+        }
         getServer().getPluginManager().registerEvents(new SlotsListener(this), this);
         getServer().getPluginManager().registerEvents(new BaccaratListener(this), this);
         getServer().getPluginManager().registerEvents(new RouletteListener(this), this);
@@ -81,11 +111,30 @@ public final class Gambling extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WheelOfFortuneListener(this), this);
         getServer().getPluginManager().registerEvents(new MinesListener(this), this);
         getServer().getPluginManager().registerEvents(new CasinoLobbyListener(this), this);
+
+        // Register casino block listeners only if system is enabled
+        if (gamblingConfig.isCasinoBlocksEnabled()) {
+            getServer().getPluginManager().registerEvents(new CasinoBlockListener(this, casinoBlockManager), this);
+            if (gamblingConfig.isPhysicalInteractionsEnabled()) {
+                getServer().getPluginManager().registerEvents(physicalGameInterface, this);
+            }
+        }
     }
 
     @Override
     public void onDisable() {
-        log.info(String.format("[%s] has been disabled!", getDescription().getName()));
+        // Shutdown casino block system
+        if (casinoBlockManager != null) {
+            casinoBlockManager.shutdown();
+        }
+        if (physicalGameInterface != null) {
+            physicalGameInterface.clearAllInteractions();
+        }
+        if (visualEffects != null) {
+            visualEffects.cleanup();
+        }
+
+        log.info(String.format("[%s] has been disabled!", getName()));
     }
 
     private boolean setupEconomy() {
@@ -114,5 +163,21 @@ public final class Gambling extends JavaPlugin {
 
     public static PokerManager getPokerManager() {
         return pokerManager;
+    }
+
+    public static CasinoBlockManager getCasinoBlockManager() {
+        return casinoBlockManager;
+    }
+
+    public static PhysicalGameInterface getPhysicalGameInterface() {
+        return physicalGameInterface;
+    }
+
+    public static CasinoVisualEffects getVisualEffects() {
+        return visualEffects;
+    }
+
+    public static GamblingConfig getGamblingConfig() {
+        return gamblingConfig;
     }
 }

@@ -1,12 +1,13 @@
 name: Gambling
-version: '1.3.2'
+version: '2.0'
 main: org.jeffstein.gambling.Gambling
 api-version: '1.21'
-load: STARTUP
+load: POSTWORLD
 authors: [ Jeffstein ]
 description: Official Minecraft Gambling Paper plugin
 website: chudcraft.jeffstein.xyz
 depend: [Vault]
+softdepend: [QualityArmory, Nova]
 commands:
   coinflip:
     description: Flip a coin for money!
@@ -38,7 +39,7 @@ commands:
     aliases: [bcc, bac]
   roulette:
     description: Play a game of roulette!
-    usage: /roulette
+    usage: /roulette <bet> <red|black|number>
     aliases: [rou, rlt]
   blackjackgui:
     description: Play a game of blackjack with a GUI!
@@ -70,4 +71,8 @@ commands:
   casino:
     description: Open the main casino lobby!
     usage: /casino
-    aliases: [lobby, games, gamble]
+    aliases: [lobby, games, gamble, gambling]
+  casinoblock:
+    description: Manage physical casino blocks in the world!
+    usage: /casinoblock <create|remove|list|info|setup|reload>
+    aliases: [cb, cblock, casinoblocks]

@@ -23,6 +23,21 @@ public class SlotsCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+
+        // Optional fast-path: /slots <bet>
+        if (args.length >= 1) {
+            try {
+                double bet = Double.parseDouble(args[0]);
+                SlotMachine slotMachine = new SlotMachine(plugin, player, bet);
+                slotMachine.openInventory();
+                // Auto-spin once with the provided bet
+                slotMachine.spin();
+                return true;
+            } catch (NumberFormatException ignored) {
+                // fall back to GUI
+            }
+        }
+
         SlotMachine slotMachine = new SlotMachine(plugin, player);
         slotMachine.openInventory();
 

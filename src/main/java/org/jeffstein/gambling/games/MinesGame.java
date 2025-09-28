@@ -267,6 +267,12 @@ public class MinesGame implements InventoryHolder {
         setupControls();
     }
 
+    public void setBetAmount(double amount) {
+        if (gameStarted) return;
+        betAmount = Math.max(10.0, Math.min(10000.0, amount));
+        setupControls();
+    }
+
     public void adjustMines(int amount) {
         if (gameStarted) return;
         mineCount = Math.max(1, Math.min(5, mineCount + amount));

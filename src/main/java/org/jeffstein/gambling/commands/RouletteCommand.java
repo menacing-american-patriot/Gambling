@@ -24,8 +24,56 @@ public class RouletteCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        RouletteBettingGUI gui = new RouletteBettingGUI(plugin, player);
-        gui.openInventory();
+
+        org.jeffstein.gambling.listeners.RouletteListener listener = org.jeffstein.gambling.listeners.RouletteListener.getInstance();
+        if (listener == null) {
+            player.sendMessage("Roulette is not available right now.");
+            return true;
+        }
+
+        if (args.length == 0) {
+            RouletteBettingGUI gui = new RouletteBettingGUI(plugin, player);
+            gui.openInventory();
+            return true;
+        }
+
+        String action = args[0].toLowerCase();
+
+        switch (action) {
+            case "roll":
+            case "spin":
+                listener.spinCommand(player);
+                return true;
+            case "status":
+                listener.statusCommand(player);
+                return true;
+            case "clear":
+                listener.clearBetsCommand(player, true);
+                return true;
+            case "table":
+                RouletteBettingGUI gui = new RouletteBettingGUI(plugin, player);
+                gui.openInventory();
+                return true;
+            default:
+                break;
+        }
+
+        try {
+            double amount = Double.parseDouble(args[0]);
+            if (args.length < 2) {
+                player.sendMessage("Usage: /roulette <amount> <bet> [roll]");
+                return true;
+            }
+
+            String betType = args[1];
+            listener.placeBetCommand(player, betType, amount);
+
+            if (args.length >= 3 && args[2].equalsIgnoreCase("roll")) {
+                listener.spinCommand(player);
+            }
+        } catch (NumberFormatException ignored) {
+            player.sendMessage("Usage: /roulette roll | /roulette status | /roulette <amount> <bet> [roll]");
+        }
         return true;
     }
 }

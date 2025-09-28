@@ -20,11 +20,19 @@ import java.util.Map;
 
 public class KenoListener implements Listener {
 
+    private static KenoListener instance;
+    public static KenoListener getInstance() { return instance; }
+
     private final Gambling plugin;
     private final Map<UUID, Double> betAmounts = new HashMap<>();
 
     public KenoListener(Gambling plugin) {
         this.plugin = plugin;
+        instance = this;
+    }
+
+    public void setBetForPlayer(Player player, double amount) {
+        betAmounts.put(player.getUniqueId(), Math.max(10.0, Math.min(1000000.0, amount)));
     }
 
     @EventHandler

@@ -2,6 +2,7 @@ package org.jeffstein.gambling.commands;
 
 import org.jeffstein.gambling.Gambling;
 import org.jeffstein.gambling.games.PlinkoGame;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,11 +24,53 @@ public class PlinkoCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        
-        // Create a new Plinko game for this player
         PlinkoGame plinkoGame = new PlinkoGame(plugin, player);
-        plinkoGame.openInventory();
-        
+
+        if (args.length == 0) {
+            plinkoGame.openInventory();
+            return true;
+        }
+
+        String action = args[0].toLowerCase();
+
+        switch (action) {
+            case "gui":
+            case "menu":
+                plinkoGame.openInventory();
+                return true;
+            case "drop":
+                if (args.length < 3) {
+                    player.sendMessage(ChatColor.YELLOW + "Usage: /plinko drop <amount> <column 1-9>");
+                    return true;
+                }
+                try {
+                    double amount = Double.parseDouble(args[1]);
+                    int column = Integer.parseInt(args[2]);
+                    plinkoGame.dropBallCommand(amount, column);
+                } catch (NumberFormatException e) {
+                    player.sendMessage(ChatColor.RED + "[PLINKO] Usage: /plinko drop <amount> <column>");
+                }
+                return true;
+            default:
+                break;
+        }
+
+        try {
+            double bet = Double.parseDouble(args[0]);
+            plinkoGame.setBetAmount(bet);
+            plinkoGame.openInventory();
+            if (args.length >= 2) {
+                try {
+                    int pos = Integer.parseInt(args[1]);
+                    plinkoGame.dropBall(pos - 1);
+                } catch (NumberFormatException ignored) {
+                    player.sendMessage(ChatColor.RED + "[PLINKO] Column must be a number 1-9.");
+                }
+            }
+        } catch (NumberFormatException ignored) {
+            plinkoGame.openInventory();
+        }
+
         return true;
     }
 }
