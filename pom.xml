@@ -6,8 +6,7 @@
 
     <groupId>org.jeffstein</groupId>
     <artifactId>gambling</artifactId>
-    <version>1.3.0</version>
-    <packaging>jar</packaging>
+2    <packaging>jar</packaging>
 
     <name>gambling</name>
 

@@ -63,6 +63,18 @@ public class BaccaratGUI implements InventoryHolder {
             ChatColor.GRAY + "Start the game!",
             ChatColor.YELLOW + "Make sure to select bet type and amount first"));
 
+        // Add help/info button
+        gui.setItem(25, createGuiItem(Material.BOOK, ChatColor.AQUA + "" + ChatColor.BOLD + "HOW TO PLAY",
+            ChatColor.GRAY + "Baccarat Rules:",
+            ChatColor.WHITE + "• Player vs Banker card game",
+            ChatColor.WHITE + "• Goal: Get closest to 9",
+            ChatColor.WHITE + "• Aces = 1, Face cards = 0",
+            ChatColor.WHITE + "• If total > 9, subtract 10",
+            ChatColor.YELLOW + "Payouts:",
+            ChatColor.BLUE + "Player: " + ChatColor.WHITE + "2:1 (even money)",
+            ChatColor.RED + "Banker: " + ChatColor.WHITE + "1.95:1 (5% commission)",
+            ChatColor.WHITE + "Tie: " + ChatColor.WHITE + "9:1 (high risk!)"));
+
         // Add back button
         gui.setItem(26, createGuiItem(Material.OAK_DOOR, ChatColor.YELLOW + "Back",
             ChatColor.GRAY + "Close the baccarat game"));

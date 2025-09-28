@@ -93,6 +93,14 @@ public class CasinoLobbyListener implements Listener {
                     }
                     break;
 
+                case 16: // Poker
+                    if (displayName.contains("POKER")) {
+                        player.closeInventory();
+                        player.sendMessage(ChatColor.GREEN + "[POKER] Joining poker table...");
+                        player.performCommand("poker join");
+                    }
+                    break;
+
                 case 19: // Crash
                     if (displayName.contains("CRASH")) {
                         player.closeInventory();

@@ -79,6 +79,11 @@ public class CasinoLobbyGUI implements InventoryHolder {
                 ChatColor.YELLOW + "Lottery-style number game",
                 ChatColor.GREEN + "Click to play!"));
 
+        gui.setItem(16, createGuiItem(Material.ITEM_FRAME, ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "🃏 POKER 🃏",
+                ChatColor.GRAY + "Texas Hold'em multiplayer poker!",
+                ChatColor.YELLOW + "Play against other players",
+                ChatColor.GREEN + "Click to join a table!"));
+
         // Modern Online Casino Games (Middle Section)
         gui.setItem(19, createGuiItem(Material.FIREWORK_ROCKET, ChatColor.RED + "" + ChatColor.BOLD + "🚀 CRASH 🚀",
                 ChatColor.GRAY + "Cash out before the crash!",

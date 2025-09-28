@@ -4,6 +4,7 @@ import org.jeffstein.gambling.Gambling;
 import org.jeffstein.gambling.games.PokerGame;
 import org.jeffstein.gambling.games.PokerManager;
 import org.jeffstein.gambling.games.PokerPlayer;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,11 +13,9 @@ import org.bukkit.entity.Player;
 public class PokerCommand implements CommandExecutor {
 
     private final Gambling plugin;
-    private final PokerManager pokerManager;
 
     public PokerCommand(Gambling plugin) {
         this.plugin = plugin;
-        this.pokerManager = PokerManager.getInstance(plugin);
     }
 
     @Override
@@ -36,59 +35,66 @@ public class PokerCommand implements CommandExecutor {
         String subCommand = args[0].toLowerCase();
 
         if (subCommand.equals("join")) {
-            PokerGame game = pokerManager.getGame(player);
+            PokerGame game = Gambling.getPokerManager().getGame(player);
             if (game != null) {
                 player.sendMessage("You are already in a game.");
                 return true;
             }
 
-            game = pokerManager.getGames().stream().filter(g -> g.getGameState() == PokerGame.GameState.WAITING).findFirst().orElse(null);
+            game = Gambling.getPokerManager().getGames().stream().filter(g -> g.getGameState() == PokerGame.GameState.WAITING).findFirst().orElse(null);
             if (game == null) {
-                game = pokerManager.createGame();
+                game = Gambling.getPokerManager().createGame();
             }
 
             game.addPlayer(new PokerPlayer(player));
-            player.sendMessage("You have joined a poker game.");
+            player.sendMessage(ChatColor.GREEN + "[POKER] You joined a poker table! Players: " + game.getPlayers().size() + "/6");
 
         } else if (subCommand.equals("leave")) {
-            PokerGame game = pokerManager.getGame(player);
+            PokerGame game = Gambling.getPokerManager().getGame(player);
             if (game == null) {
-                player.sendMessage("You are not in a game.");
+                player.sendMessage(ChatColor.RED + "[POKER] You are not in a poker game.");
                 return true;
             }
 
             game.removePlayer(game.getPlayers().stream().filter(p -> p.getPlayer().equals(player)).findFirst().get());
-            player.sendMessage("You have left the poker game.");
+            player.sendMessage(ChatColor.YELLOW + "[POKER] You left the poker game.");
 
             if (game.getPlayers().isEmpty()) {
-                pokerManager.removeGame(game);
+                Gambling.getPokerManager().removeGame(game);
             }
         } else if (subCommand.equals("bet")) {
-            PokerGame game = pokerManager.getGame(player);
+            PokerGame game = Gambling.getPokerManager().getGame(player);
             if (game == null) {
-                player.sendMessage("You are not in a game.");
+                player.sendMessage(ChatColor.RED + "[POKER] You are not in a poker game.");
                 return true;
             }
             if (args.length < 2) {
-                player.sendMessage("Usage: /poker bet <amount>");
+                player.sendMessage(ChatColor.YELLOW + "[POKER] Usage: /poker bet <amount>");
                 return true;
             }
-            double amount = Double.parseDouble(args[1]);
-            game.bet(player, amount);
+            try {
+                double amount = Double.parseDouble(args[1]);
+                game.bet(player, amount);
+                player.sendMessage(ChatColor.GREEN + "[POKER] You bet " + Gambling.getEconomy().format(amount));
+            } catch (NumberFormatException e) {
+                player.sendMessage(ChatColor.RED + "[POKER] Invalid bet amount!");
+            }
         } else if (subCommand.equals("check")) {
-            PokerGame game = pokerManager.getGame(player);
+            PokerGame game = Gambling.getPokerManager().getGame(player);
             if (game == null) {
-                player.sendMessage("You are not in a game.");
+                player.sendMessage(ChatColor.RED + "[POKER] You are not in a poker game.");
                 return true;
             }
             game.check(player);
+            player.sendMessage(ChatColor.YELLOW + "[POKER] You checked.");
         } else if (subCommand.equals("fold")) {
-            PokerGame game = pokerManager.getGame(player);
+            PokerGame game = Gambling.getPokerManager().getGame(player);
             if (game == null) {
-                player.sendMessage("You are not in a game.");
+                player.sendMessage(ChatColor.RED + "[POKER] You are not in a poker game.");
                 return true;
             }
             game.fold(player);
+            player.sendMessage(ChatColor.RED + "[POKER] You folded.");
         } else {
             player.sendMessage("Usage: /poker <join|leave|bet|check|fold>");
         }

@@ -1,5 +1,5 @@
 name: Gambling
-version: '1.3.0'
+version: '1.3.2'
 main: org.jeffstein.gambling.Gambling
 api-version: '1.21'
 load: STARTUP

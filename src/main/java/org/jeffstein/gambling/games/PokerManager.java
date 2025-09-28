@@ -12,7 +12,7 @@ public class PokerManager {
     private final Gambling plugin;
     private final List<PokerGame> games = new ArrayList<>();
 
-    private PokerManager(Gambling plugin) {
+    public PokerManager(Gambling plugin) {
         this.plugin = plugin;
     }
 

@@ -23,6 +23,7 @@ import org.jeffstein.gambling.listeners.RouletteListener;
 import org.jeffstein.gambling.listeners.SlotsListener;
 import org.jeffstein.gambling.listeners.WheelOfFortuneListener;
 import org.jeffstein.gambling.listeners.CrapsListener;
+import org.jeffstein.gambling.games.PokerManager;
 
 import java.util.logging.Logger;
 
@@ -32,6 +33,7 @@ public final class Gambling extends JavaPlugin {
     private static Economy econ = null;
     private static Leaderboard leaderboard;
     private static Jackpot jackpot;
+    private static PokerManager pokerManager;
 
     @Override
     public void onEnable() {
@@ -42,6 +44,7 @@ public final class Gambling extends JavaPlugin {
         }
         leaderboard = new Leaderboard(this);
         jackpot = new Jackpot(this);
+        pokerManager = new PokerManager(this);
         log.info(String.format("[%s] has been enabled!", getDescription().getName()));
         BlackjackCommand blackjackCommand = new BlackjackCommand(this);
         getCommand("blackjack").setExecutor(blackjackCommand);
@@ -51,7 +54,6 @@ public final class Gambling extends JavaPlugin {
         getCommand("daily").setExecutor(new DailyCommand(this));
         getCommand("leaderboard").setExecutor(new LeaderboardCommand());
         getCommand("jackpot").setExecutor(new JackpotCommand());
-        getCommand("poker").setExecutor(new PokerCommand(this));
         getCommand("baccarat").setExecutor(new BaccaratCommand(this));
         getCommand("roulette").setExecutor(new RouletteCommand(this));
         getCommand("blackjackgui").setExecutor(new BlackjackGUICommand(this));
@@ -61,6 +63,7 @@ public final class Gambling extends JavaPlugin {
         getCommand("plinko").setExecutor(new PlinkoCommand(this));
         getCommand("wheel").setExecutor(new WheelOfFortuneCommand(this));
         getCommand("mines").setExecutor(new MinesCommand(this));
+        getCommand("poker").setExecutor(new PokerCommand(this));
         getCommand("casino").setExecutor(new CasinoCommand(this));
         getServer().getPluginManager().registerEvents(new SlotsListener(this), this);
         getServer().getPluginManager().registerEvents(new BaccaratListener(this), this);
@@ -107,5 +110,9 @@ public final class Gambling extends JavaPlugin {
 
     public static Jackpot getJackpot() {
         return jackpot;
+    }
+
+    public static PokerManager getPokerManager() {
+        return pokerManager;
     }
 }
