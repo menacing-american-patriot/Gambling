@@ -22,7 +22,7 @@ casino-blocks:
       update-interval: 3  # Ticks between particle updates
       density: 1.0  # Particle density multiplier (0.1 = sparse, 2.0 = dense)
     
-    # Player win/loss effects
+    # Player win effects
     player-effects:
       win-effects: false
       loss-effects: false
@@ -41,9 +41,9 @@ casino-blocks:
     
     # Button/lever materials for different actions
     materials:
-      hit-button: "ACACIA_BUTTON"
-      stand-button: "CRIMSON_BUTTON"
-      double-button: "BIRCH_BUTTON"
+      hit-button: "BIRCH_BUTTON"
+      stand-button: "STONE_BUTTON"
+      double-button: "CHERRY_BUTTON"
       spin-lever: "LEVER"
       cashout-block: "EMERALD_BLOCK"
       bet-plate: "STONE_PRESSURE_PLATE"
@@ -65,99 +65,92 @@ casino-blocks:
       keno: "LECTERN"
       crash: "REDSTONE_BLOCK"
       plinko: "HOPPER"
-      wheel_of_fortune: "COMPASS"
+      wheel_of_fortune: "DIAMOND_BLOCK"
       mines: "TNT"
-      coinflip: "GOLD_INGOT"
+      coinflip: "GOLD_BLOCK"
 
 # Game-Specific Settings
 games:
-  # Blackjack Configuration
   blackjack:
-    # Enable physical hit/stand buttons
+    enabled: true
     physical-controls: true
-    # Minimum bet for casino blocks
     min-bet: 5.0
-    # Maximum bet for casino blocks
     max-bet: 10000.0
-    # Allow double down via physical button
     allow-double-down: true
-    # Allow split via physical button
-    allow-split: false
+    allow-split: true
   
-  # Roulette Configuration
   roulette:
+    enabled: true
     physical-controls: true
     min-bet: 1.0
     max-bet: 5000.0
-    # Auto-spin after bet placement
-    auto-spin-delay: 100  # Ticks (5 seconds)
+    auto-spin-delay: 100  # Ticks
   
-  # Slots Configuration
   slots:
-    physical-controls: false  # Slots use GUI only
+    enabled: true
+    physical-controls: true  # Slots use GUI only
     min-bet: 1.0
     max-bet: 1000.0
   
-  # Poker Configuration
   poker:
-    physical-controls: false  # Poker uses GUI/commands
+    enabled: true
+    physical-controls: true  # Poker uses GUI/commands
     min-bet: 10.0
     max-bet: 2000.0
   
-  # Craps Configuration
   craps:
+    enabled: true
     physical-controls: true
     min-bet: 5.0
     max-bet: 3000.0
   
-  # Crash Configuration
   crash:
+    enabled: true
     physical-controls: true
     min-bet: 10.0
     max-bet: 5000.0
-    # Enable physical cash-out button
     physical-cashout: true
   
-  # Plinko Configuration
   plinko:
+    enabled: true
     physical-controls: true
     min-bet: 5.0
     max-bet: 1000.0
-    # Number of drop zones
     drop-zones: 9
   
-  # Mines Configuration
   mines:
+    enabled: true
     physical-controls: true
     min-bet: 10.0
     max-bet: 2000.0
-    # Grid size for physical interactions
-    grid-size: 3  # 3x3 grid
+    grid-size: 3
   
-  # Other games
   baccarat:
+    enabled: true
     physical-controls: false
     min-bet: 20.0
     max-bet: 8000.0
   
   keno:
+    enabled: true
     physical-controls: false
     min-bet: 5.0
     max-bet: 500.0
   
   wheel_of_fortune:
+    enabled: true
     physical-controls: false
     min-bet: 10.0
     max-bet: 2500.0
   
   coinflip:
+    enabled: true
     physical-controls: false
     min-bet: 1.0
     max-bet: 10000.0
 
 # Permission Settings
 permissions:
-  # Require specific permissions for each game type
   per-game-permissions: true
   
   # Default permission for all casino blocks

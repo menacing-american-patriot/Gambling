@@ -74,7 +74,7 @@ public class PlinkoGame implements InventoryHolder {
         createPegs();
         refreshPrizes();
         refreshBetDisplay();
-        updateStatusDisplay(ChatColor.GOLD + "Select a column", ChatColor.GRAY + "Columns 4-6 are active drop slots");
+        updateStatusDisplay(ChatColor.GOLD + "Select a column", ChatColor.GRAY + "Columns 3-7 are active drop slots");
         updateRiskButton();
         updateStatsPanel();
         updateDropIndicators();
@@ -126,13 +126,14 @@ public class PlinkoGame implements InventoryHolder {
     }
 
     private void initializeTopRowControls() {
-        gui.setItem(1, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100",
+        // Symmetrical top-row controls: 0/1 are decreases, 7/8 are increases.
+        gui.setItem(0, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100",
                 ChatColor.GRAY + "Decrease bet by 100"));
-        gui.setItem(2, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-10",
+        gui.setItem(1, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-10",
                 ChatColor.GRAY + "Decrease bet by 10"));
-        gui.setItem(6, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+10",
+        gui.setItem(7, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+10",
                 ChatColor.GRAY + "Increase bet by 10"));
-        gui.setItem(7, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100",
+        gui.setItem(8, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100",
                 ChatColor.GRAY + "Increase bet by 100"));
     }
 
@@ -421,20 +422,30 @@ public class PlinkoGame implements InventoryHolder {
     }
 
     private void updateDropIndicators() {
+        // Only render drop indicators on active columns (3-5) and show locked placeholders elsewhere.
         for (int column = 0; column < prizeMultipliers.length; column++) {
-            boolean droppable = column >= 3 && column <= 5;
-            gui.setItem(column, createDropItem(column, column == lastDropColumn, droppable));
+            boolean droppable = column >= 2 && column <= 6;
+            if (droppable) {
+                gui.setItem(column, createDropItem(column, column == lastDropColumn, true));
+            } else {
+                // Default locked placeholder; bet controls will override select locked columns below
+                gui.setItem(column, createGuiItem(Material.GRAY_STAINED_GLASS_PANE,
+                        ChatColor.DARK_GRAY + "Locked",
+                        ChatColor.GRAY + "Drop available in columns 3-7"));
+            }
         }
+        // Re-apply bet controls on the top row where locked tiles are
+        initializeTopRowControls();
     }
 
     private ItemStack createDropItem(int column, boolean highlighted, boolean droppable) {
         if (!droppable) {
             return createGuiItem(Material.GRAY_STAINED_GLASS_PANE,
                     ChatColor.DARK_GRAY + "Locked",
-                    ChatColor.GRAY + "Drop available in columns 4-6");
+                    ChatColor.GRAY + "Drop available in columns 3-7");
         }
 
-        Material material = highlighted ? Material.GLOWSTONE : Material.LIME_STAINED_GLASS_PANE;
+        Material material = highlighted ? Material.GLOWSTONE : Material.YELLOW_STAINED_GLASS_PANE;
         String name = (highlighted ? ChatColor.AQUA + "" + ChatColor.BOLD : ChatColor.GREEN.toString()) + "Column " + (column + 1);
         if (highlighted && ballDropping) {
             name = ChatColor.GOLD + "Ball Dropping...";

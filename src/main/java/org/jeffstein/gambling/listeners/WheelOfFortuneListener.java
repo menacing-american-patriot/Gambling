@@ -40,26 +40,47 @@ public class WheelOfFortuneListener implements Listener {
             String displayName = clickedItem.getItemMeta().getDisplayName();
             int slot = event.getSlot();
 
+            // Handle bet amount adjustments
+            if (slot == 37) {
+                wheelGame.adjustBet(-100);
+                player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
+            } else if (slot == 38) {
+                wheelGame.adjustBet(-50);
+                player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
+            } else if (slot == 39) {
+                wheelGame.adjustBet(-10);
+                player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
+            } else if (slot == 51) {
+                wheelGame.adjustBet(10);
+                player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
+            } else if (slot == 52) {
+                wheelGame.adjustBet(50);
+                player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
+            } else if (slot == 53) {
+                wheelGame.adjustBet(100);
+                player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
+            }
+
             // Handle betting buttons
-            if (slot == 46 && displayName.contains("Bet on Numbers")) {
-                boolean success = wheelGame.placeBet("Numbers", 100.0);
+            else if (slot == 46 && displayName.contains("Bet on Numbers")) {
+                boolean success = wheelGame.placeBet("Numbers", wheelGame.getCurrentBet());
                 if (success) {
                     player.sendActionBar(ChatColor.GREEN + "Bet placed on all number segments!");
                 }
             }
             else if (slot == 47 && displayName.contains("Bet on LOSE")) {
-                boolean success = wheelGame.placeBet("LOSE", 100.0);
+                boolean success = wheelGame.placeBet("LOSE", wheelGame.getCurrentBet());
                 if (success) {
                     player.sendActionBar(ChatColor.GREEN + "Bet placed on LOSE segments!");
                 }
             }
             else if (slot == 48 && displayName.contains("Bet on JACKPOT")) {
-                boolean success = wheelGame.placeBet("JACKPOT", 100.0);
+                boolean success = wheelGame.placeBet("JACKPOT", wheelGame.getCurrentBet());
                 if (success) {
                     player.sendActionBar(ChatColor.GREEN + "Bet placed on JACKPOT segment!");
                 }
             }
-            
+
             // Handle spin button
             else if (slot == 49 && displayName.contains("SPIN WHEEL")) {
                 if (wheelGame.isSpinning()) {

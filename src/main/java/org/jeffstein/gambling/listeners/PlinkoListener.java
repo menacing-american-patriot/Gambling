@@ -44,29 +44,23 @@ public class PlinkoListener implements Listener {
             // Handle drop positions (top row, slots 0-8)
             String strippedName = ChatColor.stripColor(displayName).toLowerCase();
 
-            if (slot >= 3 && slot <= 5 && (strippedName.contains("drop") || strippedName.contains("column"))) {
-                // The dropBall method now handles all feedback via GUI updates
+            if (slot >= 2 && slot <= 6 && (strippedName.contains("drop") || strippedName.contains("column"))) {
                 plinkoGame.dropBall(slot);
-                // Play click sound for immediate feedback
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
             }
 
-            // Handle bet adjustments
-            else if (slot == 18 && displayName.contains("-100")) {
+            // Handle bet adjustments (top row locked tiles, symmetrical)
+            else if (slot == 0 && displayName.contains("-100")) {
                 plinkoGame.adjustBet(-100);
-                // Play click sound for immediate feedback
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
-            } else if (slot == 19 && displayName.contains("-10")) {
+            } else if (slot == 1 && displayName.contains("-10")) {
                 plinkoGame.adjustBet(-10);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
-            }
-            else if (slot == 25 && displayName.contains("+10")) {
+            } else if (slot == 7 && displayName.contains("+10")) {
                 plinkoGame.adjustBet(10);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
-            }
-            else if (slot == 26 && displayName.contains("+100")) {
+            } else if (slot == 8 && displayName.contains("+100")) {
                 plinkoGame.adjustBet(100);
-                // Play click sound for immediate feedback
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
             }
 

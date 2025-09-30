@@ -31,35 +31,42 @@ public class SlotMachine implements InventoryHolder {
     private static final int BACK_BUTTON_SLOT = 44;
     private static final int REBET_BUTTON_SLOT = 41;
 
-    private static final int BET_DOWN_LARGE_SLOT = 10;
-    private static final int BET_DOWN_SMALL_SLOT = 11;
-    private static final int BET_UP_SMALL_SLOT = 15;
-    private static final int BET_UP_LARGE_SLOT = 16;
+    // Symmetric top-row bet controls (avoid reel area): 0/1 for -, 6/7 for +
+    private static final int BET_DOWN_LARGE_SLOT = 0;
+    private static final int BET_DOWN_SMALL_SLOT = 1;
+    private static final int BET_UP_LARGE_SLOT = 6;
+    private static final int BET_UP_SMALL_SLOT = 7;
     private static final int RISK_INFO_SLOT = 17; // reused for payouts info
 
     private static final int[][] REEL_POSITIONS = {
-            {10, 19, 28},
-            {11, 20, 29},
-            {12, 21, 30},
-            {13, 22, 31},
-            {14, 23, 32}
+            {10, 19, 28}, // Reel 1
+            {11, 20, 29}, // Reel 2
+            {12, 21, 30}, // Reel 3
+            {13, 22, 31}, // Reel 4
+            {14, 23, 32}, // Reel 5
+            {15, 24, 33}, // Reel 6
+            {16, 25, 34}  // Reel 7
     };
 
     private static final int[][] PAYLINE_ROWS = {
-            {0, 0, 0, 0, 0}, // top
-            {1, 1, 1, 1, 1}, // middle
-            {2, 2, 2, 2, 2}, // bottom
-            {0, 1, 2, 1, 0}, // V
-            {2, 1, 0, 1, 2}  // inverted V
+            {1, 1, 1, 1, 1, 1, 1}, // middle
+            {0, 0, 0, 0, 0, 0, 0}, // top
+            {2, 2, 2, 2, 2, 2, 2}, // bottom
+            {0, 1, 2, 1, 0, 1, 2}, // V zig
+            {2, 1, 0, 1, 2, 1, 0}, // inverted V zig
+            {0, 0, 1, 1, 2, 2, 2}, // gentle down
+            {2, 2, 1, 1, 0, 0, 0}, // gentle up
+            {1, 0, 1, 2, 1, 0, 1}, // wave A
+            {1, 2, 1, 0, 1, 2, 1}  // wave B
     };
 
     private static final Symbol[] SYMBOLS = {
-            new Symbol("Diamond", Material.DIAMOND, ChatColor.AQUA, new double[]{50, 150, 400}, 1.0),
-            new Symbol("Crown", Material.GOLD_BLOCK, ChatColor.GOLD, new double[]{20, 75, 220}, 1.8),
-            new Symbol("Seven", Material.REDSTONE, ChatColor.RED, new double[]{12, 45, 140}, 2.4),
-            new Symbol("Bar", Material.IRON_BLOCK, ChatColor.GRAY, new double[]{6, 18, 60}, 3.2),
-            new Symbol("Cherry", Material.APPLE, ChatColor.DARK_RED, new double[]{4, 12, 40}, 4.0),
-            new Symbol("Lemon", Material.GLOW_BERRIES, ChatColor.YELLOW, new double[]{2, 6, 24}, 5.5)
+            new Symbol("Diamond", Material.DIAMOND, ChatColor.AQUA, new double[]{50, 150, 400, 1000, 2500}, 1.0),
+            new Symbol("Crown", Material.GOLD_BLOCK, ChatColor.GOLD, new double[]{20, 75, 220, 500, 1200}, 1.8),
+            new Symbol("Seven", Material.REDSTONE, ChatColor.RED, new double[]{12, 45, 140, 300, 800}, 2.4),
+            new Symbol("Bar", Material.IRON_BLOCK, ChatColor.GRAY, new double[]{6, 18, 60, 120, 300}, 3.2),
+            new Symbol("Cherry", Material.APPLE, ChatColor.DARK_RED, new double[]{4, 12, 40, 90, 200}, 4.0),
+            new Symbol("Lemon", Material.GLOW_BERRIES, ChatColor.YELLOW, new double[]{2, 6, 24, 50, 120}, 5.5)
     };
 
     private static final List<Symbol> WEIGHTED_STRIP = buildWeightedStrip();
@@ -128,12 +135,12 @@ public class SlotMachine implements InventoryHolder {
         gui.setItem(BET_DOWN_SMALL_SLOT, createGuiItem(Material.RED_STAINED_GLASS_PANE,
                 ChatColor.RED + "-10",
                 ChatColor.GRAY + "Decrease bet by 10"));
-        gui.setItem(BET_UP_SMALL_SLOT, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
-                ChatColor.GREEN + "+10",
-                ChatColor.GRAY + "Increase bet by 10"));
         gui.setItem(BET_UP_LARGE_SLOT, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
                 ChatColor.GREEN + "+100",
                 ChatColor.GRAY + "Increase bet by 100"));
+        gui.setItem(BET_UP_SMALL_SLOT, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
+                ChatColor.GREEN + "+10",
+                ChatColor.GRAY + "Increase bet by 10"));
 
         gui.setItem(SPIN_BUTTON_SLOT, createGuiItem(Material.LIME_CONCRETE,
                 ChatColor.GREEN + "" + ChatColor.BOLD + "SPIN",
@@ -146,7 +153,7 @@ public class SlotMachine implements InventoryHolder {
         gui.setItem(51, createGuiItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, " "));
         gui.setItem(52, createGuiItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, " "));
 
-        updateStatus(ChatColor.GOLD + "Welcome to Lux Slots", ChatColor.GRAY + "Adjust your bet and spin");
+        updateStatus(ChatColor.GOLD + "Welcome to Lux Slots", ChatColor.GRAY + "7-Reel machine • Adjust your bet and spin");
     }
 
     private void populateInitialGrid() {
@@ -232,7 +239,7 @@ public class SlotMachine implements InventoryHolder {
                 ChatColor.DARK_GRAY + "Reels slowing down");
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.6f, 1.2f);
 
-        int[] stopTicks = {18, 24, 30, 36, 42};
+        int[] stopTicks = {18, 23, 28, 33, 38, 43, 48};
         new BukkitRunnable() {
             int tick = 0;
 
@@ -279,7 +286,9 @@ public class SlotMachine implements InventoryHolder {
             player.sendMessage(symbol.color + "  " + symbol.name + ChatColor.GRAY + ": " +
                     ChatColor.YELLOW + "3x=" + symbol.multipliers[0] + "  " +
                     ChatColor.GOLD + "4x=" + symbol.multipliers[1] + "  " +
-                    ChatColor.LIGHT_PURPLE + "5x=" + symbol.multipliers[2]);
+                    ChatColor.LIGHT_PURPLE + "5x=" + symbol.multipliers[2] + "  " +
+                    ChatColor.AQUA + "6x=" + symbol.multipliers[3] + "  " +
+                    ChatColor.BLUE + "7x=" + symbol.multipliers[4]);
         }
     }
 
@@ -333,7 +342,9 @@ public class SlotMachine implements InventoryHolder {
                     meta.setLore(Arrays.asList(
                             ChatColor.GRAY + "3x " + ChatColor.YELLOW + symbol.multipliers[0] + "x",
                             ChatColor.GRAY + "4x " + ChatColor.GOLD + symbol.multipliers[1] + "x",
-                            ChatColor.GRAY + "5x " + ChatColor.LIGHT_PURPLE + symbol.multipliers[2] + "x"));
+                            ChatColor.GRAY + "5x " + ChatColor.LIGHT_PURPLE + symbol.multipliers[2] + "x",
+                            ChatColor.GRAY + "6x " + ChatColor.AQUA + symbol.multipliers[3] + "x",
+                            ChatColor.GRAY + "7x " + ChatColor.BLUE + symbol.multipliers[4] + "x"));
                     if (highlights.contains(slot)) {
                         meta.setEnchantmentGlintOverride(true);
                     }
@@ -407,8 +418,8 @@ public class SlotMachine implements InventoryHolder {
     }
 
     private Symbol[][] generateSpinGrid() {
-        Symbol[][] grid = new Symbol[3][5];
-        for (int reel = 0; reel < 5; reel++) {
+        Symbol[][] grid = new Symbol[3][7];
+        for (int reel = 0; reel < 7; reel++) {
             int start = ThreadLocalRandom.current().nextInt(WEIGHTED_STRIP.size());
             for (int row = 0; row < 3; row++) {
                 grid[row][reel] = WEIGHTED_STRIP.get((start + row) % WEIGHTED_STRIP.size());
@@ -427,7 +438,7 @@ public class SlotMachine implements InventoryHolder {
         for (int[] payline : PAYLINE_ROWS) {
             Symbol first = grid[payline[0]][0];
             int matches = 1;
-            for (int col = 1; col < 5; col++) {
+            for (int col = 1; col < 7; col++) {
                 if (grid[payline[col]][col] == first) {
                     matches++;
                 } else {
@@ -445,7 +456,7 @@ public class SlotMachine implements InventoryHolder {
                 for (int col = 0; col < matches; col++) {
                     highlights.add(REEL_POSITIONS[col][payline[col]]);
                 }
-                if (first == SYMBOLS[0] && matches == 5) {
+                if (first == SYMBOLS[0] && matches >= 5) {
                     total += Gambling.getJackpot().getJackpot();
                     Gambling.getJackpot().resetJackpot();
                     jackpot = true;

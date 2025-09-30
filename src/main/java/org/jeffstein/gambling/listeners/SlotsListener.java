@@ -43,10 +43,10 @@ public class SlotsListener implements Listener {
                     player.sendActionBar(ChatColor.GRAY + "Thanks for playing slots!");
                 }
                 case 8 -> slotMachine.showPaytable();
-                case 10 -> slotMachine.adjustBet(-100);
-                case 11 -> slotMachine.adjustBet(-10);
-                case 15 -> slotMachine.adjustBet(10);
-                case 16 -> slotMachine.adjustBet(100);
+                case 0 -> slotMachine.adjustBet(-100);
+                case 1 -> slotMachine.adjustBet(-10);
+                case 7 -> slotMachine.adjustBet(10);
+                case 6 -> slotMachine.adjustBet(100);
                 default -> {}
             }
         }

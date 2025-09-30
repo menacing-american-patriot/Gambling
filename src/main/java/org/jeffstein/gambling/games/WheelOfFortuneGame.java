@@ -24,17 +24,22 @@ public class WheelOfFortuneGame implements InventoryHolder {
     private final Player player;
     private final Inventory gui;
     private final Economy economy = Gambling.getEconomy();
-    
+
     private final Map<String, Double> playerBets = new HashMap<>();
     private boolean spinning = false;
-    
+
+    // Adjustable betting amount
+    private double currentBet = 100.0;
+    private static final double MIN_BET = 10.0;
+    private static final double MAX_BET = 1000000.0;
+
     // Wheel segments (24 segments total)
     private final String[] wheelSegments = {
         "1x", "LOSE", "2x", "LOSE", "5x", "LOSE", "3x", "LOSE",
         "10x", "LOSE", "2x", "LOSE", "1x", "LOSE", "4x", "LOSE",
         "20x", "LOSE", "3x", "LOSE", "1x", "LOSE", "50x", "JACKPOT"
     };
-    
+
     private final Material[] segmentColors = {
         Material.WHITE_CONCRETE, Material.RED_CONCRETE, Material.YELLOW_CONCRETE, Material.RED_CONCRETE,
         Material.LIME_CONCRETE, Material.RED_CONCRETE, Material.ORANGE_CONCRETE, Material.RED_CONCRETE,
@@ -43,7 +48,7 @@ public class WheelOfFortuneGame implements InventoryHolder {
         Material.CYAN_CONCRETE, Material.RED_CONCRETE, Material.ORANGE_CONCRETE, Material.RED_CONCRETE,
         Material.WHITE_CONCRETE, Material.RED_CONCRETE, Material.DIAMOND_BLOCK, Material.EMERALD_BLOCK
     };
-    
+
     // Wheel positions in GUI (circular arrangement)
     private final int[] wheelPositions = {
         4, 5, 6, 7, 8, 17, 26, 35, 44, 43, 42, 41,
@@ -69,7 +74,7 @@ public class WheelOfFortuneGame implements InventoryHolder {
             String segment = wheelSegments[i];
             Material color = segmentColors[i];
             int position = wheelPositions[i];
-            
+
             ChatColor textColor = getTextColor(segment);
             gui.setItem(position, createGuiItem(color, textColor + segment,
                     ChatColor.GRAY + "Wheel segment",
@@ -94,28 +99,61 @@ public class WheelOfFortuneGame implements InventoryHolder {
     }
 
     private void setupBettingControls() {
-        // Betting options
+        // Bet amount adjusters (bottom row sides)
+        gui.setItem(37, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100",
+                ChatColor.GRAY + "Decrease bet by 100"));
+        gui.setItem(38, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-50",
+                ChatColor.GRAY + "Decrease bet by 50"));
+        gui.setItem(39, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-10",
+                ChatColor.GRAY + "Decrease bet by 10"));
+        gui.setItem(51, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+10",
+                ChatColor.GRAY + "Increase bet by 10"));
+        gui.setItem(52, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+50",
+                ChatColor.GRAY + "Increase bet by 50"));
+        gui.setItem(53, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100",
+                ChatColor.GRAY + "Increase bet by 100"));
+
+        // Current bet display (center bottom)
+        gui.setItem(32, createGuiItem(Material.GOLD_INGOT, ChatColor.GOLD + "Current Bet",
+                ChatColor.WHITE + economy.format(currentBet),
+                ChatColor.GRAY + "Adjust using the controls"));
+
+        // Betting options (use currentBet)
         gui.setItem(46, createGuiItem(Material.GOLD_NUGGET, ChatColor.GOLD + "Bet on Numbers",
-                ChatColor.GRAY + "Bet 100 on all number segments",
+                ChatColor.GRAY + "Bet " + economy.format(currentBet) + " on all number segments",
                 ChatColor.GREEN + "Click to place bet"));
 
         gui.setItem(47, createGuiItem(Material.REDSTONE, ChatColor.RED + "Bet on LOSE",
-                ChatColor.GRAY + "Bet 100 on all LOSE segments",
+                ChatColor.GRAY + "Bet " + economy.format(currentBet) + " on all LOSE segments",
                 ChatColor.GREEN + "Click to place bet"));
 
         gui.setItem(48, createGuiItem(Material.DIAMOND, ChatColor.AQUA + "Bet on JACKPOT",
-                ChatColor.GRAY + "Bet 100 on JACKPOT segment",
+                ChatColor.GRAY + "Bet " + economy.format(currentBet) + " on JACKPOT segment",
                 ChatColor.GREEN + "Click to place bet"));
 
         String[] betSummary = getBetSummary();
         gui.setItem(50, createGuiItem(Material.BOOK, ChatColor.YELLOW + "Your Bets", betSummary));
     }
+    public void adjustBet(double delta) {
+        setBetAmount(currentBet + delta);
+    }
+
+    private void setBetAmount(double amount) {
+        currentBet = Math.max(MIN_BET, Math.min(MAX_BET, amount));
+        // Refresh bet display and controls to reflect updated amount
+        setupBettingControls();
+    }
+
+    public double getCurrentBet() {
+        return currentBet;
+    }
+
 
     private String[] getBetSummary() {
         if (playerBets.isEmpty()) {
             return new String[]{ChatColor.GRAY + "No bets placed"};
         }
-        
+
         String[] summary = new String[playerBets.size() + 1];
         summary[0] = ChatColor.GRAY + "Current bets:";
         int i = 1;
@@ -240,7 +278,7 @@ public class WheelOfFortuneGame implements InventoryHolder {
         int position = wheelPositions[index];
         String segment = wheelSegments[index];
         ChatColor textColor = getTextColor(segment);
-        
+
         gui.setItem(position, createGuiItem(Material.GLOWSTONE, textColor + "" + ChatColor.BOLD + segment,
                 ChatColor.YELLOW + "Current position"));
     }
@@ -248,7 +286,7 @@ public class WheelOfFortuneGame implements InventoryHolder {
     private void highlightWinningSegment(int index) {
         int position = wheelPositions[index];
         String segment = wheelSegments[index];
-        
+
         gui.setItem(position, createGuiItem(Material.BEACON, ChatColor.GOLD + "" + ChatColor.BOLD + segment,
                 ChatColor.GREEN + "WINNING SEGMENT!"));
     }
@@ -259,7 +297,7 @@ public class WheelOfFortuneGame implements InventoryHolder {
             Material color = segmentColors[i];
             int position = wheelPositions[i];
             ChatColor textColor = getTextColor(segment);
-            
+
             gui.setItem(position, createGuiItem(color, textColor + segment,
                     ChatColor.GRAY + "Wheel segment"));
         }
