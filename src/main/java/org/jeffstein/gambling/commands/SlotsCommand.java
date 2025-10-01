@@ -2,6 +2,7 @@ package org.jeffstein.gambling.commands;
 
 import org.jeffstein.gambling.Gambling;
 import org.jeffstein.gambling.games.SlotMachine;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,6 +24,11 @@ public class SlotsCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+
+        if (!Gambling.getGamblingConfig().isGameEnabled("slots")) {
+            player.sendMessage(ChatColor.RED + "[SLOTS] This game is currently disabled.");
+            return true;
+        }
 
         // Optional fast-path: /slots <bet>
         if (args.length >= 1) {

@@ -26,6 +26,10 @@ public class PokerCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("poker")) {
+            player.sendMessage(ChatColor.RED + "[POKER] This game is currently disabled.");
+            return true;
+        }
 
         if (args.length == 0) {
             player.sendMessage("Usage: /poker <join|leave|bet|check|fold>");

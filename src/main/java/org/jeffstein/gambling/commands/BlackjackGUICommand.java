@@ -23,6 +23,10 @@ public class BlackjackGUICommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("blackjack")) {
+            player.sendMessage("Blackjack is currently disabled.");
+            return true;
+        }
         BlackjackBettingGUI bettingGUI = new BlackjackBettingGUI(plugin, player);
         bettingGUI.openInventory();
         return true;

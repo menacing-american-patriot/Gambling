@@ -23,6 +23,10 @@ public class BaccaratCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("baccarat")) {
+            player.sendMessage("Baccarat is currently disabled.");
+            return true;
+        }
         org.jeffstein.gambling.listeners.BaccaratListener listener = org.jeffstein.gambling.listeners.BaccaratListener.getInstance();
 
         if (listener == null) {

@@ -61,12 +61,16 @@ public class SlotMachine implements InventoryHolder {
     };
 
     private static final Symbol[] SYMBOLS = {
-            new Symbol("Diamond", Material.DIAMOND, ChatColor.AQUA, new double[]{50, 150, 400, 1000, 2500}, 1.0),
-            new Symbol("Crown", Material.GOLD_BLOCK, ChatColor.GOLD, new double[]{20, 75, 220, 500, 1200}, 1.8),
-            new Symbol("Seven", Material.REDSTONE, ChatColor.RED, new double[]{12, 45, 140, 300, 800}, 2.4),
-            new Symbol("Bar", Material.IRON_BLOCK, ChatColor.GRAY, new double[]{6, 18, 60, 120, 300}, 3.2),
-            new Symbol("Cherry", Material.APPLE, ChatColor.DARK_RED, new double[]{4, 12, 40, 90, 200}, 4.0),
-            new Symbol("Lemon", Material.GLOW_BERRIES, ChatColor.YELLOW, new double[]{2, 6, 24, 50, 120}, 5.5)
+            // Premiums to lows (line pays are per-line bet):
+            new Symbol("Diamond", Material.DIAMOND, ChatColor.AQUA, new double[]{50, 150, 400, 1000, 2500}, 1.0, false, false),
+            new Symbol("Crown", Material.GOLD_BLOCK, ChatColor.GOLD, new double[]{20, 75, 220, 500, 1200}, 1.8, false, false),
+            new Symbol("Seven", Material.REDSTONE, ChatColor.RED, new double[]{12, 45, 140, 300, 800}, 2.4, false, false),
+            new Symbol("Bar", Material.IRON_BLOCK, ChatColor.GRAY, new double[]{6, 18, 60, 120, 300}, 3.2, false, false),
+            new Symbol("Cherry", Material.APPLE, ChatColor.DARK_RED, new double[]{4, 12, 40, 90, 200}, 4.0, false, false),
+            new Symbol("Lemon", Material.GLOW_BERRIES, ChatColor.YELLOW, new double[]{2, 6, 24, 50, 120}, 5.5, false, false),
+            // Specials:
+            new Symbol("Wild", Material.NETHER_STAR, ChatColor.LIGHT_PURPLE, new double[]{10, 50, 200, 600, 1500}, 0.5, true, false),
+            new Symbol("Scatter", Material.ENCHANTED_GOLDEN_APPLE, ChatColor.GOLD, new double[]{2, 10, 50, 100, 250}, 0.8, false, true)
     };
 
     private static final List<Symbol> WEIGHTED_STRIP = buildWeightedStrip();
@@ -75,6 +79,9 @@ public class SlotMachine implements InventoryHolder {
     private final Player player;
     private final Inventory gui;
     private final Economy economy = Gambling.getEconomy();
+
+    // Auto-spin state for rebet x10
+    private int autoSpinsRemaining = 0;
 
     private Symbol[][] displayGrid = new Symbol[3][5];
     private double currentBet = 100.0;
@@ -126,8 +133,8 @@ public class SlotMachine implements InventoryHolder {
                 ChatColor.YELLOW + "Exit",
                 ChatColor.GRAY + "Close the machine"));
         gui.setItem(REBET_BUTTON_SLOT, createGuiItem(Material.NETHER_STAR,
-                ChatColor.LIGHT_PURPLE + "Rebet & Spin",
-                ChatColor.GRAY + "Repeat last wager"));
+                ChatColor.LIGHT_PURPLE + "Rebet x10 (Auto-Spin)",
+                ChatColor.GRAY + "Spin 10 times at current bet"));
 
         gui.setItem(BET_DOWN_LARGE_SLOT, createGuiItem(Material.RED_STAINED_GLASS_PANE,
                 ChatColor.RED + "-100",
@@ -221,6 +228,10 @@ public class SlotMachine implements InventoryHolder {
                     ChatColor.GRAY + "Need " + economy.format(currentBet),
                     ChatColor.YELLOW + "Balance: " + economy.format(economy.getBalance(player)));
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            if (autoSpinsRemaining > 0) {
+                player.sendActionBar(ChatColor.RED + "Auto-Spin stopped (insufficient funds)." );
+                autoSpinsRemaining = 0;
+            }
             return;
         }
 
@@ -253,6 +264,19 @@ public class SlotMachine implements InventoryHolder {
                     updateSpinButton();
                     refreshBetDisplay();
                     updateStatsPanel();
+                    // Queue next auto-spin if requested and GUI still open
+                    if (autoSpinsRemaining > 0) {
+                        new BukkitRunnable() {
+                            @Override public void run() {
+                                InventoryHolder holder = player.getOpenInventory().getTopInventory().getHolder();
+                                if (holder instanceof SlotMachine) {
+                                    startNextAutoSpin();
+                                } else {
+                                    autoSpinsRemaining = 0;
+                                }
+                            }
+                        }.runTaskLater(plugin, 10L);
+                    }
                     cancel();
                     return;
                 }
@@ -274,14 +298,30 @@ public class SlotMachine implements InventoryHolder {
     }
 
     public void rebetAndSpin() {
+        if (spinning) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage(ChatColor.RED + "[SLOTS] Wait for the current spin to finish.");
+            return;
+        }
         if (currentBet <= 0) {
             setBetAmount(100.0);
         }
+        autoSpinsRemaining = 10;
+        player.sendActionBar(ChatColor.LIGHT_PURPLE + "Auto-Spin x" + autoSpinsRemaining + " started");
+        startNextAutoSpin();
+    }
+    private void startNextAutoSpin() {
+        if (autoSpinsRemaining <= 0) return;
+        // Ensure GUI still open and holder matches this machine
+        InventoryHolder holder = player.getOpenInventory().getTopInventory().getHolder();
+        if (!(holder instanceof SlotMachine)) { autoSpinsRemaining = 0; return; }
+        autoSpinsRemaining--;
         spin();
     }
 
+
     public void showPaytable() {
-        player.sendMessage(ChatColor.AQUA + "[SLOTS] Paytable (multipliers are per 1.0 bet)");
+        player.sendMessage(ChatColor.AQUA + "[SLOTS] Paytable (line pays are per-line bet; scatters pay x total bet)");
         for (Symbol symbol : SYMBOLS) {
             player.sendMessage(symbol.color + "  " + symbol.name + ChatColor.GRAY + ": " +
                     ChatColor.YELLOW + "3x=" + symbol.multipliers[0] + "  " +
@@ -339,12 +379,31 @@ public class SlotMachine implements InventoryHolder {
                 ItemMeta meta = item.getItemMeta();
                 if (meta != null) {
                     meta.setDisplayName(symbol.color + symbol.name);
-                    meta.setLore(Arrays.asList(
+                    if (symbol.isScatter) {
+                        meta.setLore(Arrays.asList(
+                            ChatColor.GOLD + "Pays anywhere (x total bet)",
+                            ChatColor.GRAY + "3x=" + ChatColor.YELLOW + symbol.multipliers[0] + "x  " +
+                            ChatColor.GRAY + "4x=" + ChatColor.GOLD + symbol.multipliers[1] + "x",
+                            ChatColor.GRAY + "5x=" + ChatColor.LIGHT_PURPLE + symbol.multipliers[2] + "x  " +
+                            ChatColor.GRAY + "6x=" + ChatColor.AQUA + symbol.multipliers[3] + "x  " +
+                            ChatColor.GRAY + "7x=" + ChatColor.BLUE + symbol.multipliers[4] + "x"));
+                    } else if (symbol.isWild) {
+                        meta.setLore(Arrays.asList(
+                            ChatColor.LIGHT_PURPLE + "Substitutes any symbol",
+                            ChatColor.DARK_GRAY + "(except Scatter)",
+                            ChatColor.GRAY + "3x=" + ChatColor.YELLOW + symbol.multipliers[0] + "x  " +
+                            ChatColor.GRAY + "4x=" + ChatColor.GOLD + symbol.multipliers[1] + "x  " +
+                            ChatColor.GRAY + "5x=" + ChatColor.LIGHT_PURPLE + symbol.multipliers[2] + "x",
+                            ChatColor.GRAY + "6x=" + ChatColor.AQUA + symbol.multipliers[3] + "x  " +
+                            ChatColor.GRAY + "7x=" + ChatColor.BLUE + symbol.multipliers[4] + "x"));
+                    } else {
+                        meta.setLore(Arrays.asList(
                             ChatColor.GRAY + "3x " + ChatColor.YELLOW + symbol.multipliers[0] + "x",
                             ChatColor.GRAY + "4x " + ChatColor.GOLD + symbol.multipliers[1] + "x",
                             ChatColor.GRAY + "5x " + ChatColor.LIGHT_PURPLE + symbol.multipliers[2] + "x",
                             ChatColor.GRAY + "6x " + ChatColor.AQUA + symbol.multipliers[3] + "x",
                             ChatColor.GRAY + "7x " + ChatColor.BLUE + symbol.multipliers[4] + "x"));
+                    }
                     if (highlights.contains(slot)) {
                         meta.setEnchantmentGlintOverride(true);
                     }
@@ -435,37 +494,97 @@ public class SlotMachine implements InventoryHolder {
         String primary = "";
         boolean jackpot = false;
 
+        double perLineBet = currentBet / PAYLINE_ROWS.length;
+
+        // Payline wins with Wild substitutions (Scatter does not participate on lines)
         for (int[] payline : PAYLINE_ROWS) {
-            Symbol first = grid[payline[0]][0];
-            int matches = 1;
-            for (int col = 1; col < 7; col++) {
-                if (grid[payline[col]][col] == first) {
+            Symbol target = null; // first non-wild, non-scatter symbol from the left
+            int matches = 0;
+            List<Integer> matchedCols = new ArrayList<>();
+
+            for (int col = 0; col < REEL_POSITIONS.length; col++) {
+                Symbol sym = grid[payline[col]][col];
+                if (sym.isScatter) {
+                    // Scatters don't extend payline combos
+                    break;
+                }
+                if (sym.isWild) {
+                    // Wild always helps extend the run
                     matches++;
+                    matchedCols.add(col);
+                    continue;
+                }
+                if (target == null) {
+                    target = sym;
+                    matches++;
+                    matchedCols.add(col);
+                } else if (sym == target) {
+                    matches++;
+                    matchedCols.add(col);
                 } else {
                     break;
                 }
             }
+
             if (matches >= 3) {
-                double multiplier = first.getMultiplier(matches);
-                double lineWin = currentBet * multiplier;
-                total += lineWin;
-                lines++;
-                if (primary.isEmpty()) {
-                    primary = first.color + first.name + ChatColor.GRAY + " x" + matches;
+                // If all leading symbols were wild and no target found, pay wild's table
+                Symbol payingSymbol = (target == null) ? getWildSymbol() : target;
+                double multiplier = payingSymbol.getMultiplier(matches);
+                double lineWin = perLineBet * multiplier;
+                if (lineWin > 0) {
+                    total += lineWin;
+                    lines++;
+                    if (primary.isEmpty()) {
+                        primary = payingSymbol.color + payingSymbol.name + ChatColor.GRAY + " x" + matches;
+                    }
+                    for (int c : matchedCols) {
+                        highlights.add(REEL_POSITIONS[c][payline[c]]);
+                    }
+                    // Jackpot on Diamonds (index 0) for 5+ in a row
+                    if (payingSymbol == SYMBOLS[0] && matches >= 5) {
+                        total += Gambling.getJackpot().getJackpot();
+                        Gambling.getJackpot().resetJackpot();
+                        jackpot = true;
+                    }
                 }
-                for (int col = 0; col < matches; col++) {
-                    highlights.add(REEL_POSITIONS[col][payline[col]]);
-                }
-                if (first == SYMBOLS[0] && matches >= 5) {
-                    total += Gambling.getJackpot().getJackpot();
-                    Gambling.getJackpot().resetJackpot();
-                    jackpot = true;
-                }
+            }
+        }
+
+        // Scatter pays anywhere based on total bet
+        int scatterCount = countScatters(grid);
+        double scatterMult = getScatterMultiplier(scatterCount);
+        if (scatterMult > 0) {
+            total += currentBet * scatterMult;
+            if (primary.isEmpty()) {
+                primary = ChatColor.GOLD + "Scatter" + ChatColor.GRAY + " x" + scatterCount;
             }
         }
 
         return new SpinOutcome(total, lines, highlights, primary, jackpot);
     }
+    private Symbol getWildSymbol() {
+        for (Symbol s : SYMBOLS) if (s.isWild) return s;
+        return SYMBOLS[0]; // fallback
+    }
+
+    private int countScatters(Symbol[][] grid) {
+        int count = 0;
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[0].length; c++) {
+                if (grid[r][c].isScatter) count++;
+            }
+        }
+        return count;
+    }
+
+    private double getScatterMultiplier(int count) {
+        // Using Scatter symbol's multipliers (3..7 anywhere) from SYMBOLS[]
+        Symbol scatter = null;
+        for (Symbol s : SYMBOLS) if (s.isScatter) { scatter = s; break; }
+        if (scatter == null) return 0.0;
+        return scatter.getMultiplier(count);
+    }
+
 
     private ItemStack createGuiItem(Material material, String name, String... lore) {
         ItemStack item = new ItemStack(material);
@@ -489,23 +608,28 @@ public class SlotMachine implements InventoryHolder {
         private final String name;
         private final Material material;
         private final ChatColor color;
-        private final double[] multipliers; // for 3,4,5
+        // For non-scatter: multipliers are 3..7 of a kind (per-line bet). For scatter: 3..7 anywhere (x total bet)
+        private final double[] multipliers;
         private final double weight;
+        private final boolean isWild;
+        private final boolean isScatter;
 
-        private Symbol(String name, Material material, ChatColor color, double[] multipliers, double weight) {
+        private Symbol(String name, Material material, ChatColor color, double[] multipliers, double weight, boolean isWild, boolean isScatter) {
             this.name = name;
             this.material = material;
             this.color = color;
             this.multipliers = multipliers;
             this.weight = weight;
+            this.isWild = isWild;
+            this.isScatter = isScatter;
         }
 
         private double getMultiplier(int matches) {
-            return switch (matches) {
-                case 5 -> multipliers[2];
-                case 4 -> multipliers[1];
-                default -> multipliers[0];
-            };
+            // Returns 0 if <3, otherwise multipliers indexed at (matches-3)
+            if (matches < 3) return 0;
+            int idx = Math.min(matches, 7) - 3;
+            if (idx < 0 || idx >= multipliers.length) return 0;
+            return multipliers[idx];
         }
     }
 

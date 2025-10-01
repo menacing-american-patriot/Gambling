@@ -24,6 +24,10 @@ public class PlinkoCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("plinko")) {
+            player.sendMessage(ChatColor.RED + "[PLINKO] This game is currently disabled.");
+            return true;
+        }
         PlinkoGame plinkoGame = new PlinkoGame(plugin, player);
 
         if (args.length == 0) {

@@ -46,15 +46,22 @@ public class CasinoLobbyListener implements Listener {
             switch (slot) {
                 case 10: // Blackjack
                     if (displayName.contains("BLACKJACK")) {
+                        if (!org.jeffstein.gambling.Gambling.getGamblingConfig().isGameEnabled("blackjack")) {
+                            player.sendMessage(ChatColor.RED + "Blackjack is disabled by admin.");
+                            break;
+                        }
                         player.closeInventory();
                         player.sendActionBar(ChatColor.GREEN + "Opening Blackjack...");
-                        // Open blackjack GUI
                         player.performCommand("blackjackgui");
                     }
                     break;
 
                 case 11: // Roulette
                     if (displayName.contains("ROULETTE")) {
+                        if (!org.jeffstein.gambling.Gambling.getGamblingConfig().isGameEnabled("roulette")) {
+                            player.sendMessage(ChatColor.RED + "Roulette is disabled by admin.");
+                            break;
+                        }
                         player.closeInventory();
                         player.sendActionBar(ChatColor.GREEN + "Opening Roulette...");
                         player.performCommand("roulette");
@@ -63,6 +70,10 @@ public class CasinoLobbyListener implements Listener {
 
                 case 12: // Baccarat
                     if (displayName.contains("BACCARAT")) {
+                        if (!org.jeffstein.gambling.Gambling.getGamblingConfig().isGameEnabled("baccarat")) {
+                            player.sendMessage(ChatColor.RED + "Baccarat is disabled by admin.");
+                            break;
+                        }
                         player.closeInventory();
                         player.sendActionBar(ChatColor.GREEN + "Opening Baccarat...");
                         player.performCommand("baccarat");
@@ -71,6 +82,10 @@ public class CasinoLobbyListener implements Listener {
 
                 case 13: // Slots
                     if (displayName.contains("SLOTS")) {
+                        if (!org.jeffstein.gambling.Gambling.getGamblingConfig().isGameEnabled("slots")) {
+                            player.sendMessage(ChatColor.RED + "Slots is disabled by admin.");
+                            break;
+                        }
                         player.closeInventory();
                         player.sendActionBar(ChatColor.GREEN + "Opening Slots...");
                         player.performCommand("slots");
@@ -79,6 +94,10 @@ public class CasinoLobbyListener implements Listener {
 
                 case 14: // Craps
                     if (displayName.contains("CRAPS")) {
+                        if (!org.jeffstein.gambling.Gambling.getGamblingConfig().isGameEnabled("craps")) {
+                            player.sendMessage(ChatColor.RED + "Craps is disabled by admin.");
+                            break;
+                        }
                         player.closeInventory();
                         player.sendActionBar(ChatColor.GREEN + "Opening Craps...");
                         player.performCommand("craps");
@@ -87,6 +106,10 @@ public class CasinoLobbyListener implements Listener {
 
                 case 15: // Keno
                     if (displayName.contains("KENO")) {
+                        if (!org.jeffstein.gambling.Gambling.getGamblingConfig().isGameEnabled("keno")) {
+                            player.sendMessage(ChatColor.RED + "Keno is disabled by admin.");
+                            break;
+                        }
                         player.closeInventory();
                         player.sendActionBar(ChatColor.GREEN + "Opening Keno...");
                         player.performCommand("keno");
@@ -95,6 +118,10 @@ public class CasinoLobbyListener implements Listener {
 
                 case 16: // Poker
                     if (displayName.contains("POKER")) {
+                        if (!org.jeffstein.gambling.Gambling.getGamblingConfig().isGameEnabled("poker")) {
+                            player.sendMessage(ChatColor.RED + "Poker is disabled by admin.");
+                            break;
+                        }
                         player.closeInventory();
                         player.sendMessage(ChatColor.GREEN + "[POKER] Joining poker table...");
                         player.performCommand("poker join");
@@ -103,6 +130,10 @@ public class CasinoLobbyListener implements Listener {
 
                 case 19: // Crash
                     if (displayName.contains("CRASH")) {
+                        if (!org.jeffstein.gambling.Gambling.getGamblingConfig().isGameEnabled("crash")) {
+                            player.sendMessage(ChatColor.RED + "Crash is disabled by admin.");
+                            break;
+                        }
                         player.closeInventory();
                         player.sendActionBar(ChatColor.GREEN + "Opening Crash...");
                         player.performCommand("crash");
@@ -111,6 +142,10 @@ public class CasinoLobbyListener implements Listener {
 
                 case 20: // Plinko
                     if (displayName.contains("PLINKO")) {
+                        if (!org.jeffstein.gambling.Gambling.getGamblingConfig().isGameEnabled("plinko")) {
+                            player.sendMessage(ChatColor.RED + "Plinko is disabled by admin.");
+                            break;
+                        }
                         player.closeInventory();
                         player.sendActionBar(ChatColor.GREEN + "Opening Plinko...");
                         player.performCommand("plinko");
@@ -119,6 +154,10 @@ public class CasinoLobbyListener implements Listener {
 
                 case 21: // Wheel of Fortune
                     if (displayName.contains("WHEEL OF FORTUNE")) {
+                        if (!org.jeffstein.gambling.Gambling.getGamblingConfig().isGameEnabled("wheel")) {
+                            player.sendMessage(ChatColor.RED + "Wheel of Fortune is disabled by admin.");
+                            break;
+                        }
                         player.closeInventory();
                         player.sendActionBar(ChatColor.GREEN + "Opening Wheel of Fortune...");
                         player.performCommand("wheel");
@@ -127,6 +166,10 @@ public class CasinoLobbyListener implements Listener {
 
                 case 22: // Mines
                     if (displayName.contains("MINES")) {
+                        if (!org.jeffstein.gambling.Gambling.getGamblingConfig().isGameEnabled("mines")) {
+                            player.sendMessage(ChatColor.RED + "Mines is disabled by admin.");
+                            break;
+                        }
                         player.closeInventory();
                         player.sendActionBar(ChatColor.GREEN + "Opening Mines...");
                         player.performCommand("mines");

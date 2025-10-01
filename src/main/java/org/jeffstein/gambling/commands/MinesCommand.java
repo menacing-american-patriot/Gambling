@@ -23,6 +23,10 @@ public class MinesCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("mines")) {
+            player.sendMessage("Mines is currently disabled.");
+            return true;
+        }
 
         MinesGame minesGame = new MinesGame(plugin, player);
 

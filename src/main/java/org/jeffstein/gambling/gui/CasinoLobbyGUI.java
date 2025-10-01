@@ -49,61 +49,116 @@ public class CasinoLobbyGUI implements InventoryHolder {
                 ChatColor.YELLOW + "Good luck and have fun!"));
 
         // Classic Casino Games (Top Section)
-        gui.setItem(10, createGuiItem(Material.PAPER, ChatColor.RED + "" + ChatColor.BOLD + "♠ BLACKJACK ♠",
-                ChatColor.GRAY + "Beat the dealer to 21!",
-                ChatColor.YELLOW + "Commands: /blackjack or /blackjackgui",
-                ChatColor.GREEN + "Click to play!"));
+        if (Gambling.getGamblingConfig().isGameEnabled("blackjack")) {
+            gui.setItem(10, createGuiItem(Material.PAPER, ChatColor.RED + "" + ChatColor.BOLD + "♠ BLACKJACK ♠",
+                    ChatColor.GRAY + "Beat the dealer to 21!",
+                    ChatColor.YELLOW + "Commands: /blackjack or /blackjackgui",
+                    ChatColor.GREEN + "Click to play!"));
+        } else {
+            gui.setItem(10, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "♠ BLACKJACK (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
-        gui.setItem(11, createGuiItem(Material.REDSTONE_BLOCK, ChatColor.RED + "" + ChatColor.BOLD + "🎯 ROULETTE 🎯",
-                ChatColor.GRAY + "Spin the wheel of fortune!",
-                ChatColor.YELLOW + "Bet on numbers, colors, or odds",
-                ChatColor.GREEN + "Click to play!"));
+        if (Gambling.getGamblingConfig().isGameEnabled("roulette")) {
+            gui.setItem(11, createGuiItem(Material.REDSTONE_BLOCK, ChatColor.RED + "" + ChatColor.BOLD + "🎯 ROULETTE 🎯",
+                    ChatColor.GRAY + "Spin the wheel of fortune!",
+                    ChatColor.YELLOW + "Bet on numbers, colors, or odds",
+                    ChatColor.GREEN + "Click to play!"));
+        } else {
+            gui.setItem(11, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "🎯 ROULETTE (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
-        gui.setItem(12, createGuiItem(Material.EMERALD, ChatColor.GREEN + "" + ChatColor.BOLD + "💎 BACCARAT 💎",
-                ChatColor.GRAY + "Player vs Banker card game",
-                ChatColor.YELLOW + "High-class casino experience",
-                ChatColor.GREEN + "Click to play!"));
+        if (Gambling.getGamblingConfig().isGameEnabled("baccarat")) {
+            gui.setItem(12, createGuiItem(Material.EMERALD, ChatColor.GREEN + "" + ChatColor.BOLD + "💎 BACCARAT 💎",
+                    ChatColor.GRAY + "Player vs Banker card game",
+                    ChatColor.YELLOW + "High-class casino experience",
+                    ChatColor.GREEN + "Click to play!"));
+        } else {
+            gui.setItem(12, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "💎 BACCARAT (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
-        gui.setItem(13, createGuiItem(Material.GOLD_INGOT, ChatColor.GOLD + "" + ChatColor.BOLD + "🎰 SLOTS 🎰",
-                ChatColor.GRAY + "Spin the reels for big wins!",
-                ChatColor.YELLOW + "5x3 reels with multiple paylines",
-                ChatColor.GREEN + "Click to play!"));
+        if (Gambling.getGamblingConfig().isGameEnabled("slots")) {
+            gui.setItem(13, createGuiItem(Material.GOLD_INGOT, ChatColor.GOLD + "" + ChatColor.BOLD + "🎰 SLOTS 🎰",
+                    ChatColor.GRAY + "Spin the reels for big wins!",
+                    ChatColor.YELLOW + "5x3 reels with multiple paylines",
+                    ChatColor.GREEN + "Click to play!"));
+        } else {
+            gui.setItem(13, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "🎰 SLOTS (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
-        gui.setItem(14, createGuiItem(Material.BONE, ChatColor.WHITE + "" + ChatColor.BOLD + "🎲 CRAPS 🎲",
-                ChatColor.GRAY + "Roll the dice and win big!",
-                ChatColor.YELLOW + "Classic casino dice game",
-                ChatColor.GREEN + "Click to play!"));
+        if (Gambling.getGamblingConfig().isGameEnabled("craps")) {
+            gui.setItem(14, createGuiItem(Material.BONE, ChatColor.WHITE + "" + ChatColor.BOLD + "🎲 CRAPS 🎲",
+                    ChatColor.GRAY + "Roll the dice and win big!",
+                    ChatColor.YELLOW + "Classic casino dice game",
+                    ChatColor.GREEN + "Click to play!"));
+        } else {
+            gui.setItem(14, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "🎲 CRAPS (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
-        gui.setItem(15, createGuiItem(Material.PAPER, ChatColor.BLUE + "" + ChatColor.BOLD + "🔢 KENO 🔢",
-                ChatColor.GRAY + "Pick numbers and hope they're drawn!",
-                ChatColor.YELLOW + "Lottery-style number game",
-                ChatColor.GREEN + "Click to play!"));
+        if (Gambling.getGamblingConfig().isGameEnabled("keno")) {
+            gui.setItem(15, createGuiItem(Material.PAPER, ChatColor.BLUE + "" + ChatColor.BOLD + "🔢 KENO 🔢",
+                    ChatColor.GRAY + "Pick numbers and hope they're drawn!",
+                    ChatColor.YELLOW + "Lottery-style number game",
+                    ChatColor.GREEN + "Click to play!"));
+        } else {
+            gui.setItem(15, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "🔢 KENO (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
-        gui.setItem(16, createGuiItem(Material.ITEM_FRAME, ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "🃏 POKER 🃏",
-                ChatColor.GRAY + "Texas Hold'em multiplayer poker!",
-                ChatColor.YELLOW + "Play against other players",
-                ChatColor.GREEN + "Click to join a table!"));
+        if (Gambling.getGamblingConfig().isGameEnabled("poker")) {
+            gui.setItem(16, createGuiItem(Material.ITEM_FRAME, ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "🃏 POKER 🃏",
+                    ChatColor.GRAY + "Texas Hold'em multiplayer poker!",
+                    ChatColor.YELLOW + "Play against other players",
+                    ChatColor.GREEN + "Click to join a table!"));
+        } else {
+            gui.setItem(16, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "🃏 POKER (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
         // Modern Online Casino Games (Middle Section)
-        gui.setItem(19, createGuiItem(Material.FIREWORK_ROCKET, ChatColor.RED + "" + ChatColor.BOLD + "🚀 CRASH 🚀",
-                ChatColor.GRAY + "Cash out before the crash!",
-                ChatColor.YELLOW + "Most popular online casino game",
-                ChatColor.GREEN + "Click to play!"));
+        if (Gambling.getGamblingConfig().isGameEnabled("crash")) {
+            gui.setItem(19, createGuiItem(Material.FIREWORK_ROCKET, ChatColor.RED + "" + ChatColor.BOLD + "🚀 CRASH 🚀",
+                    ChatColor.GRAY + "Cash out before the crash!",
+                    ChatColor.YELLOW + "Most popular online casino game",
+                    ChatColor.GREEN + "Click to play!"));
+        } else {
+            gui.setItem(19, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "🚀 CRASH (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
-        gui.setItem(20, createGuiItem(Material.ENDER_PEARL, ChatColor.YELLOW + "" + ChatColor.BOLD + "🎯 PLINKO 🎯",
-                ChatColor.GRAY + "Drop balls down the peg board!",
-                ChatColor.YELLOW + "Watch the ball bounce to prizes",
-                ChatColor.GREEN + "Click to play!"));
+        if (Gambling.getGamblingConfig().isGameEnabled("plinko")) {
+            gui.setItem(20, createGuiItem(Material.ENDER_PEARL, ChatColor.YELLOW + "" + ChatColor.BOLD + "🎯 PLINKO 🎯",
+                    ChatColor.GRAY + "Drop balls down the peg board!",
+                    ChatColor.YELLOW + "Watch the ball bounce to prizes",
+                    ChatColor.GREEN + "Click to play!"));
+        } else {
+            gui.setItem(20, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "🎯 PLINKO (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
-        gui.setItem(21, createGuiItem(Material.COMPASS, ChatColor.GOLD + "" + ChatColor.BOLD + "🎡 WHEEL OF FORTUNE 🎡",
-                ChatColor.GRAY + "Spin the wheel for prizes!",
-                ChatColor.YELLOW + "Bet on segments and spin",
-                ChatColor.GREEN + "Click to play!"));
+        if (Gambling.getGamblingConfig().isGameEnabled("wheel")) {
+            gui.setItem(21, createGuiItem(Material.COMPASS, ChatColor.GOLD + "" + ChatColor.BOLD + "🎡 WHEEL OF FORTUNE 🎡",
+                    ChatColor.GRAY + "Spin the wheel for prizes!",
+                    ChatColor.YELLOW + "Bet on segments and spin",
+                    ChatColor.GREEN + "Click to play!"));
+        } else {
+            gui.setItem(21, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "🎡 WHEEL OF FORTUNE (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
-        gui.setItem(22, createGuiItem(Material.TNT, ChatColor.RED + "" + ChatColor.BOLD + "💣 MINES 💣",
-                ChatColor.GRAY + "Find gems, avoid mines!",
-                ChatColor.YELLOW + "Strategic risk vs reward game",
-                ChatColor.GREEN + "Click to play!"));
+        if (Gambling.getGamblingConfig().isGameEnabled("mines")) {
+            gui.setItem(22, createGuiItem(Material.TNT, ChatColor.RED + "" + ChatColor.BOLD + "💣 MINES 💣",
+                    ChatColor.GRAY + "Find gems, avoid mines!",
+                    ChatColor.YELLOW + "Strategic risk vs reward game",
+                    ChatColor.GREEN + "Click to play!"));
+        } else {
+            gui.setItem(22, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "💣 MINES (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
         // Casino Information (Bottom Section)
         gui.setItem(37, createGuiItem(Material.BOOK, ChatColor.AQUA + "" + ChatColor.BOLD + "📊 LEADERBOARD 📊",
@@ -121,10 +176,15 @@ public class CasinoLobbyGUI implements InventoryHolder {
                 ChatColor.YELLOW + "Free money every day",
                 ChatColor.GREEN + "Click to claim!"));
 
-        gui.setItem(40, createGuiItem(Material.GOLD_NUGGET, ChatColor.GOLD + "" + ChatColor.BOLD + "💰 COINFLIP 💰",
-                ChatColor.GRAY + "Simple heads or tails bet",
-                ChatColor.YELLOW + "Quick gambling for any amount",
-                ChatColor.GREEN + "Use /coinflip <amount>"));
+        if (Gambling.getGamblingConfig().isGameEnabled("coinflip")) {
+            gui.setItem(40, createGuiItem(Material.GOLD_NUGGET, ChatColor.GOLD + "" + ChatColor.BOLD + "💰 COINFLIP 💰",
+                    ChatColor.GRAY + "Simple heads or tails bet",
+                    ChatColor.YELLOW + "Quick gambling for any amount",
+                    ChatColor.GREEN + "Use /coinflip <amount>"));
+        } else {
+            gui.setItem(40, createGuiItem(Material.GRAY_STAINED_GLASS_PANE, ChatColor.DARK_GRAY + "💰 COINFLIP (DISABLED)",
+                    ChatColor.RED + "Disabled by admin"));
+        }
 
         // Player Info
         double balance = Gambling.getEconomy().getBalance(player);

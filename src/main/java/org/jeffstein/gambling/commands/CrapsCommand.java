@@ -1,5 +1,6 @@
 package org.jeffstein.gambling.commands;
 
+import org.jeffstein.gambling.Gambling;
 import org.jeffstein.gambling.listeners.CrapsListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,6 +19,10 @@ public class CrapsCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("craps")) {
+            player.sendMessage("Craps is currently disabled.");
+            return true;
+        }
 
         CrapsListener listener = CrapsListener.getInstance();
 

@@ -23,6 +23,10 @@ public class KenoCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("keno")) {
+            player.sendMessage("Keno is currently disabled.");
+            return true;
+        }
 
         // Optional fast-path: /keno <amount>
         if (args.length >= 1) {

@@ -31,6 +31,10 @@ public class CrashCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("crash")) {
+            player.sendMessage(ChatColor.RED + "[CRASH] This game is currently disabled.");
+            return true;
+        }
         CrashGame game = getGlobalCrashGame();
 
         if (args.length == 0) {

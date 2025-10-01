@@ -7,7 +7,7 @@
     <groupId>org.jeffstein</groupId>
     <artifactId>gambling</artifactId>
     <packaging>jar</packaging>
-    <version>2.1.4</version>
+    <version>2.1.6</version>
 
     <name>Gambling</name>
 
@@ -81,31 +81,34 @@
             <url>https://repo.essentialsx.net/releases/</url>
         </repository>
         <repository>
-            <id>paper-repo</id>
-            <url>https://papermc.io/repo/repository/maven-public/</url>
-        </repository>
-        <repository>
-            <id>glaremasters repo</id>
-            <url>https://repo.glaremasters.me/repository/towny/</url>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
-            <id>minecraft-libraries</id>
-            <name>Minecraft Libraries</name>
-            <url>https://libraries.minecraft.net</url>
+            <id>glaremasters repo</id>
+            <url>https://repo.glaremasters.me/repository/towny/</url>
         </repository>
     </repositories>
+
 
     <dependencies>
         <dependency>
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>VaultUnlockedAPI</artifactId>
-            <version>2.3</version><!-- Validate this is the most recent version from the CI -->
+            <version>2.3</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.21.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>net.luckperms</groupId>
@@ -124,31 +127,14 @@
         <dependency>
           <groupId>xyz.xenondevs.nova</groupId>
           <artifactId>nova-api</artifactId>
-          <version>0.20.5</version>
+          <version>0.21.0-alpha.1</version>
           <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.mojang</groupId>
-            <artifactId>authlib</artifactId>
-            <version>5.0.51</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.mojang</groupId>
-            <artifactId>datafixerupper</artifactId>
-            <version>1.0.20</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.21.8-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.palmergames.bukkit.towny</groupId>
             <artifactId>towny</artifactId>
-            <version>0.101.1.4</version>
+            <version>0.101.1.5</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

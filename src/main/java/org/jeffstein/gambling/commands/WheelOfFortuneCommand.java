@@ -24,6 +24,10 @@ public class WheelOfFortuneCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("wheel")) {
+            player.sendMessage("Wheel of Fortune is currently disabled.");
+            return true;
+        }
 
         WheelOfFortuneGame wheelGame = new WheelOfFortuneGame(plugin, player);
 

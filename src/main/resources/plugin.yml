@@ -1,5 +1,5 @@
 name: Gambling
-version: '2.1.4'
+version: '2.1.6'
 main: org.jeffstein.gambling.Gambling
 api-version: '1.21'
 load: POSTWORLD
@@ -7,7 +7,7 @@ authors: [ Jeffstein ]
 description: Official Minecraft Gambling Paper plugin
 website: https://www.chudcraft.jeffstein.xyz/
 depend: [Vault]
-softdepend: [Nova,Vault,Towny,EssentialsX,LuckPerms]
+softdepend: [Nova,Vault,VaultUnlocked,Towny,EssentialsX,LuckPerms]
 commands:
   coinflip:
     description: Flip a coin for money!

@@ -24,6 +24,10 @@ public class RouletteCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("roulette")) {
+            player.sendMessage("Roulette is currently disabled.");
+            return true;
+        }
 
         org.jeffstein.gambling.listeners.RouletteListener listener = org.jeffstein.gambling.listeners.RouletteListener.getInstance();
         if (listener == null) {

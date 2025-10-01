@@ -29,6 +29,10 @@ public class BlackjackCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("blackjack")) {
+            player.sendMessage(ChatColor.RED + "[BLACKJACK] This game is currently disabled.");
+            return true;
+        }
         UUID playerId = player.getUniqueId();
 
         if (args.length == 0) {

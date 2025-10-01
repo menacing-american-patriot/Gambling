@@ -31,6 +31,10 @@ public class CoinflipCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
+        if (!Gambling.getGamblingConfig().isGameEnabled("coinflip")) {
+            player.sendMessage(ChatColor.RED + "[COINFLIP] This game is currently disabled.");
+            return true;
+        }
 
         // 2. Validate the command arguments
         if (args.length!= 1) {
