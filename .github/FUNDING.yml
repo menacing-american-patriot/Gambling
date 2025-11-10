@@ -12,4 +12,4 @@ lfx_crowdfunding: # Replace with a single LFX Crowdfunding project-name e.g., cl
 polar: americancbt
 buy_me_a_coffee: # Replace with a single Buy Me a Coffee username
 thanks_dev: menacing-american-patriot
-custom: ['https://buy.stripe.com/dR601p6cD07O8uY5kl', 'ethereum://jeffstein.eth']
+custom: ["https://buy.stripe.com/dR601p6cD07O8uY5kl", "ethereum://jeffstein.eth"]
