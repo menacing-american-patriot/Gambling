@@ -1,5 +1,5 @@
 name: Gambling
-version: '2.1.6'
+version: '2.2.1'
 main: org.jeffstein.gambling.Gambling
 api-version: '1.21'
 load: POSTWORLD
