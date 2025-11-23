@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.jeffstein</groupId>
+    <groupId>org.jeffstein.map</groupId>
     <artifactId>gambling</artifactId>
     <packaging>jar</packaging>
-    <version>2.2.1</version>
+    <version>3.3.3</version>
 
     <name>Gambling</name>
 
@@ -105,7 +105,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.9-R0.1-SNAPSHOT</version>
+            <version>1.21.10-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -127,14 +127,14 @@
         <dependency>
           <groupId>xyz.xenondevs.nova</groupId>
           <artifactId>nova-api</artifactId>
-          <version>0.21.0-alpha.1</version>
+          <version>0.21.0-alpha.3</version>
           <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.palmergames.bukkit.towny</groupId>
             <artifactId>towny</artifactId>
-            <version>0.101.1.5</version>
+            <version>0.101.1.6</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

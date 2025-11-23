@@ -4,7 +4,10 @@
 *.iml
 *.ipr
 *.iws
-
+.env
+!.env/example
+*/.env
+!*/.env/example
 # IntelliJ
 out/
 
