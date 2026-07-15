@@ -34,6 +34,8 @@ hs_err_pid*
 
 *~
 
+*.env
+
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*
 
@@ -94,6 +96,7 @@ $RECYCLE.BIN/
 *.msix
 *.msm
 *.msp
+.env
 
 # Windows shortcuts
 *.lnk
@@ -114,3 +117,5 @@ buildNumber.properties
 
 # Common working directory
 run/
+.env
+.env
