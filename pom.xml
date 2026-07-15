@@ -7,9 +7,17 @@
     <groupId>org.jeffstein.map</groupId>
     <artifactId>gambling</artifactId>
     <packaging>jar</packaging>
-    <version>3.3.3</version>
+    <version>3.3.4</version>
 
     <name>Gambling</name>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub menacing-american-patriot Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/menacing-american-patriot/Gambling</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <java.version>21</java.version>
@@ -105,7 +113,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.10-R0.1-SNAPSHOT</version>
+            <version>26.2.build.60-beta</version>
             <scope>provided</scope>
         </dependency>
 
@@ -113,7 +121,7 @@
         <dependency>
             <groupId>net.luckperms</groupId>
             <artifactId>api</artifactId>
-            <version>5.4</version>
+            <version>5.5</version>
             <scope>provided</scope>
         </dependency>
 
@@ -127,14 +135,14 @@
         <dependency>
           <groupId>xyz.xenondevs.nova</groupId>
           <artifactId>nova-api</artifactId>
-          <version>0.21.0-alpha.3</version>
+          <version>0.23.0</version>
           <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.palmergames.bukkit.towny</groupId>
             <artifactId>towny</artifactId>
-            <version>0.101.1.6</version>
+            <version>0.103.0.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
