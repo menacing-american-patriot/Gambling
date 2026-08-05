@@ -27,8 +27,8 @@ public class CrashGame {
     private BukkitTask gameTask;
     private BukkitTask bettingCountdownTask;
     
-    private static final double MIN_BET = 10.0;
-    private static final double MAX_BET = 10000.0;
+    private static final double MIN_BET = 100.0;
+    private static final double MAX_BET = 100000.0;
     private static final int BETTING_TIME = 10; // seconds
     private static final double MULTIPLIER_INCREMENT = 0.01;
     

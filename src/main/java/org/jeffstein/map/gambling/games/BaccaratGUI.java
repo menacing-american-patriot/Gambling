@@ -71,11 +71,11 @@ public class BaccaratGUI implements InventoryHolder {
             ChatColor.GRAY + "Quick bet"));
 
         gui.setItem(20, createGuiItem(Material.GOLD_INGOT,
-            ChatColor.GOLD + "Bet " + Gambling.getEconomy().format(500),
+            ChatColor.GOLD + "Bet " + Gambling.getEconomy().format(1000),
             ChatColor.GRAY + "Balanced bet"));
 
         gui.setItem(21, createGuiItem(Material.GOLD_BLOCK,
-            ChatColor.GOLD + "Bet " + Gambling.getEconomy().format(1000),
+            ChatColor.GOLD + "Bet " + Gambling.getEconomy().format(10000),
             ChatColor.GRAY + "High roller"));
 
         gui.setItem(ACTION_BUTTON_SLOT, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
@@ -166,9 +166,9 @@ public class BaccaratGUI implements InventoryHolder {
 
         if (amount == 100) {
             highlightSlot(19);
-        } else if (amount == 500) {
-            highlightSlot(20);
         } else if (amount == 1000) {
+            highlightSlot(20);
+        } else if (amount == 10000) {
             highlightSlot(21);
         }
     }

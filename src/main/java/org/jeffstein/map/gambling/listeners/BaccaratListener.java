@@ -189,7 +189,7 @@ public class BaccaratListener implements Listener {
             game.beginRound();
             gui.resetForNewGame();
             gui.setSelectedBet(betType);
-            if (wager == 100 || wager == 500 || wager == 1000) {
+            if (wager == 100 || wager == 1000 || wager == 10000) {
                 gui.setSelectedAmount(wager);
             }
             gui.setStatus("Shuffling Deck",
@@ -404,7 +404,7 @@ public class BaccaratListener implements Listener {
         BaccaratGUI gui = new BaccaratGUI(plugin, player);
         gui.openInventory();
         gui.setSelectedBet(normalized);
-        if (amount == 100 || amount == 500 || amount == 1000) {
+        if (amount == 100 || amount == 1000 || amount == 10000) {
             gui.setSelectedAmount(amount);
         }
 

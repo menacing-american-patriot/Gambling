@@ -55,17 +55,17 @@ public class MinesListener implements Listener {
             }
             
             // Handle bet adjustments
-            else if (slot == 27 && displayName.contains("-100")) {
+            else if (slot == 27 && displayName.contains("-1000")) {
+                minesGame.adjustBet(-1000);
+            }
+            else if (slot == 28 && displayName.contains("-100")) {
                 minesGame.adjustBet(-100);
             }
-            else if (slot == 28 && displayName.contains("-50")) {
-                minesGame.adjustBet(-50);
-            }
-            else if (slot == 30 && displayName.contains("+50")) {
-                minesGame.adjustBet(50);
-            }
-            else if (slot == 31 && displayName.contains("+100")) {
+            else if (slot == 30 && displayName.contains("+100")) {
                 minesGame.adjustBet(100);
+            }
+            else if (slot == 31 && displayName.contains("+1000")) {
+                minesGame.adjustBet(1000);
             }
             
             // Handle mine count adjustments

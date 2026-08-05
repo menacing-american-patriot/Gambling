@@ -50,17 +50,17 @@ public class PlinkoListener implements Listener {
             }
 
             // Handle bet adjustments (top row locked tiles, symmetrical)
-            else if (slot == 0 && displayName.contains("-100")) {
-                plinkoGame.adjustBet(-100);
+            else if (slot == 0 && displayName.contains("-1000")) {
+                plinkoGame.adjustBet(-1000);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
-            } else if (slot == 1 && displayName.contains("-10")) {
-                plinkoGame.adjustBet(-10);
+            } else if (slot == 1 && displayName.contains("-50")) {
+                plinkoGame.adjustBet(-50);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
-            } else if (slot == 7 && displayName.contains("+10")) {
-                plinkoGame.adjustBet(10);
+            } else if (slot == 7 && displayName.contains("+50")) {
+                plinkoGame.adjustBet(50);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
-            } else if (slot == 8 && displayName.contains("+100")) {
-                plinkoGame.adjustBet(100);
+            } else if (slot == 8 && displayName.contains("+1000")) {
+                plinkoGame.adjustBet(1000);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
             }
 

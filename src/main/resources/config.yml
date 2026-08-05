@@ -51,7 +51,7 @@ casino-blocks:
   # Default settings for new casino blocks
   defaults:
     min-bet: 10.0
-    max-bet: 1000.0
+    max-bet: 20000.0
     enabled: true
     
     # Default block types for each game
@@ -75,7 +75,7 @@ games:
     enabled: true
     physical-controls: true
     min-bet: 5.0
-    max-bet: 10000.0
+    max-bet: 1000000.0
     allow-double-down: true
     allow-split: true
   
@@ -83,53 +83,53 @@ games:
     enabled: true
     physical-controls: true
     min-bet: 1.0
-    max-bet: 5000.0
+    max-bet: 1000000.0
     auto-spin-delay: 100  # Ticks
   
   slots:
     enabled: true
     physical-controls: true  # Slots use GUI only
     min-bet: 1.0
-    max-bet: 1000.0
+    max-bet: 100000.0
   
   poker:
     enabled: true
     physical-controls: true  # Poker uses GUI/commands
     min-bet: 10.0
-    max-bet: 2000.0
+    max-bet: 100000.0
   
   craps:
     enabled: true
     physical-controls: true
     min-bet: 5.0
-    max-bet: 3000.0
+    max-bet: 100000.0
   
   crash:
     enabled: true
     physical-controls: true
     min-bet: 10.0
-    max-bet: 5000.0
+    max-bet: 1000000.0
     physical-cashout: true
   
   plinko:
     enabled: true
     physical-controls: true
     min-bet: 5.0
-    max-bet: 1000.0
+    max-bet: 100000.0
     drop-zones: 9
   
   mines:
     enabled: true
     physical-controls: true
     min-bet: 10.0
-    max-bet: 2000.0
+    max-bet: 20000.0
     grid-size: 3
   
   baccarat:
     enabled: true
     physical-controls: false
     min-bet: 20.0
-    max-bet: 8000.0
+    max-bet: 1000000.0
   
   keno:
     enabled: true
@@ -141,13 +141,13 @@ games:
     enabled: true
     physical-controls: false
     min-bet: 10.0
-    max-bet: 2500.0
+    max-bet: 100000.0
   
   coinflip:
     enabled: true
     physical-controls: false
     min-bet: 1.0
-    max-bet: 10000.0
+    max-bet: 1000.0
 
 # Permission Settings
 permissions:

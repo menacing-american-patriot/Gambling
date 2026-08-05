@@ -99,7 +99,7 @@ public class SlotMachine implements InventoryHolder {
     public SlotMachine(Gambling plugin, Player player, double bet) {
         this.plugin = plugin;
         this.player = player;
-        this.gui = Bukkit.createInventory(this, INVENTORY_SIZE, ChatColor.GOLD + "✨ LUX SLOTS ✨");
+        this.gui = Bukkit.createInventory(this, INVENTORY_SIZE, ChatColor.GOLD + "✨ LUCKY SLOTS ✨");
         setBetAmount(bet);
         buildLayout();
         populateInitialGrid();
@@ -137,17 +137,17 @@ public class SlotMachine implements InventoryHolder {
                 ChatColor.GRAY + "Spin 10 times at current bet"));
 
         gui.setItem(BET_DOWN_LARGE_SLOT, createGuiItem(Material.RED_STAINED_GLASS_PANE,
+                ChatColor.RED + "-1000",
+                ChatColor.GRAY + "Decrease bet by 1000"));
+        gui.setItem(BET_DOWN_SMALL_SLOT, createGuiItem(Material.RED_STAINED_GLASS_PANE,
                 ChatColor.RED + "-100",
                 ChatColor.GRAY + "Decrease bet by 100"));
-        gui.setItem(BET_DOWN_SMALL_SLOT, createGuiItem(Material.RED_STAINED_GLASS_PANE,
-                ChatColor.RED + "-10",
-                ChatColor.GRAY + "Decrease bet by 10"));
         gui.setItem(BET_UP_LARGE_SLOT, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
                 ChatColor.GREEN + "+100",
                 ChatColor.GRAY + "Increase bet by 100"));
         gui.setItem(BET_UP_SMALL_SLOT, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
-                ChatColor.GREEN + "+10",
-                ChatColor.GRAY + "Increase bet by 10"));
+                ChatColor.GREEN + "+1000",
+                ChatColor.GRAY + "Increase bet by 1000"));
 
         gui.setItem(SPIN_BUTTON_SLOT, createGuiItem(Material.LIME_CONCRETE,
                 ChatColor.GREEN + "" + ChatColor.BOLD + "SPIN",
@@ -160,7 +160,7 @@ public class SlotMachine implements InventoryHolder {
         gui.setItem(51, createGuiItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, " "));
         gui.setItem(52, createGuiItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, " "));
 
-        updateStatus(ChatColor.GOLD + "Welcome to Lux Slots", ChatColor.GRAY + "7-Reel machine • Adjust your bet and spin");
+        updateStatus(ChatColor.GOLD + "Welcome to Lucky Slots", ChatColor.GRAY + "7-Reel machine • Adjust your bet and spin");
     }
 
     private void populateInitialGrid() {

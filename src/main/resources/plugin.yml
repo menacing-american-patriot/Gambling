@@ -1,5 +1,5 @@
 name: Gambling
-version: "3.3.3"
+version: "3.6.6"
 main: org.jeffstein.map.gambling.Gambling
 api-version: "1.21"
 load: POSTWORLD

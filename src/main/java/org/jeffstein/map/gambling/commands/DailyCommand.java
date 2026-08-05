@@ -41,7 +41,7 @@ public class DailyCommand implements CommandExecutor {
             return true;
         }
 
-        double reward = 100.0; // The daily reward amount
+        double reward = 1000.0; // The daily reward amount
         Gambling.getEconomy().depositPlayer(player, reward);
         playerData.set(playerId + ".lastClaimed", currentTime);
         savePlayerData();

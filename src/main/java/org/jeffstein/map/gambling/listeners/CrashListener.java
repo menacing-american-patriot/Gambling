@@ -42,18 +42,18 @@ public class CrashListener implements Listener {
             int slot = event.getSlot();
 
             // Handle bet amount adjustments
-            if (slot == 37) { // -100
+            if (slot == 37) { // -10000
+                crashGUI.adjustBet(-10000);
+            } else if (slot == 38) { // -1000
+                crashGUI.adjustBet(-1000);
+            } else if (slot == 39) { // -100
                 crashGUI.adjustBet(-100);
-            } else if (slot == 38) { // -50
-                crashGUI.adjustBet(-50);
-            } else if (slot == 39) { // -10
-                crashGUI.adjustBet(-10);
-            } else if (slot == 41) { // +10
-                crashGUI.adjustBet(10);
-            } else if (slot == 42) { // +50
-                crashGUI.adjustBet(50);
-            } else if (slot == 43) { // +100
+            } else if (slot == 41) { // +100
                 crashGUI.adjustBet(100);
+            } else if (slot == 42) { // +1000
+                crashGUI.adjustBet(1000);
+            } else if (slot == 43) { // +10000
+                crashGUI.adjustBet(10000);
             }
             
             // Handle auto-cashout adjustments

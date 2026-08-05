@@ -100,18 +100,18 @@ public class WheelOfFortuneGame implements InventoryHolder {
 
     private void setupBettingControls() {
         // Bet amount adjusters (bottom row sides)
-        gui.setItem(37, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100",
+        gui.setItem(37, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-10000",
+                ChatColor.GRAY + "Decrease bet by 10000"));
+        gui.setItem(38, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-1000",
+                ChatColor.GRAY + "Decrease bet by 1000"));
+        gui.setItem(39, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100",
                 ChatColor.GRAY + "Decrease bet by 100"));
-        gui.setItem(38, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-50",
-                ChatColor.GRAY + "Decrease bet by 50"));
-        gui.setItem(39, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-10",
-                ChatColor.GRAY + "Decrease bet by 10"));
-        gui.setItem(51, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+10",
-                ChatColor.GRAY + "Increase bet by 10"));
-        gui.setItem(52, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+50",
-                ChatColor.GRAY + "Increase bet by 50"));
-        gui.setItem(53, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100",
+        gui.setItem(51, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100",
                 ChatColor.GRAY + "Increase bet by 100"));
+        gui.setItem(52, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+1000",
+                ChatColor.GRAY + "Increase bet by 1000"));
+        gui.setItem(53, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+10000",
+                ChatColor.GRAY + "Increase bet by 10000"));
 
         // Current bet display (center bottom)
         gui.setItem(32, createGuiItem(Material.GOLD_INGOT, ChatColor.GOLD + "Current Bet",

@@ -90,15 +90,15 @@ public class MinesGame implements InventoryHolder {
 
     private void setupControls() {
         // Bet controls
-        gui.setItem(27, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100",
+        gui.setItem(27, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-1000",
                 ChatColor.GRAY + "Decrease bet"));
-        gui.setItem(28, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-50",
+        gui.setItem(28, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100",
                 ChatColor.GRAY + "Decrease bet"));
         gui.setItem(29, createGuiItem(Material.GOLD_INGOT, ChatColor.GOLD + "Bet Amount",
                 ChatColor.WHITE + economy.format(betAmount)));
-        gui.setItem(30, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+50",
+        gui.setItem(30, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100",
                 ChatColor.GRAY + "Increase bet"));
-        gui.setItem(31, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100",
+        gui.setItem(31, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+1000",
                 ChatColor.GRAY + "Increase bet"));
 
         // Mine count controls

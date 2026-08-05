@@ -54,19 +54,19 @@ public class CrapsListener implements Listener {
 
         switch (slot) {
             case 37:
-                table.gui.adjustBet(-100);
+                table.gui.adjustBet(-1000);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
                 break;
             case 38:
-                table.gui.adjustBet(-50);
+                table.gui.adjustBet(-100);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
                 break;
             case 42:
-                table.gui.adjustBet(50);
+                table.gui.adjustBet(100);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
                 break;
             case 43:
-                table.gui.adjustBet(100);
+                table.gui.adjustBet(1000);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
                 break;
             case 30:

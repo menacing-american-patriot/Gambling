@@ -38,6 +38,8 @@ public class KenoGUI implements InventoryHolder {
         gui.setItem(48, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "Start Game"));
         gui.setItem(49, createGuiItem(Material.BARRIER, ChatColor.RED + "Clear Selection"));
         gui.setItem(50, createGuiItem(Material.GOLD_NUGGET, ChatColor.GOLD + "Bet 100"));
+        gui.setItem(51, createGuiItem(Material.GOLD_INGOT, ChatColor.GOLD + "Bet 1000"));
+        gui.setItem(52, createGuiItem(Material.GOLD_BLOCK, ChatColor.GOLD + "Bet 10000"));
     }
 
     public List<Integer> getSelectedNumbers() {

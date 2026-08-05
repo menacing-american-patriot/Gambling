@@ -28,16 +28,16 @@ public class BlackjackBettingGUI implements InventoryHolder {
 
     private void initializeItems() {
         // Bet controls
-        gui.setItem(10, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100"));
-        gui.setItem(11, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-50"));
-        gui.setItem(12, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-10"));
+        gui.setItem(10, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-10000"));
+        gui.setItem(11, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-1000"));
+        gui.setItem(12, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100"));
         
         gui.setItem(13, createGuiItem(Material.GOLD_INGOT, ChatColor.GOLD + "Current Bet", 
             ChatColor.GRAY + "Amount: " + ChatColor.WHITE + Gambling.getEconomy().format(currentBet)));
         
-        gui.setItem(14, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+10"));
-        gui.setItem(15, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+50"));
-        gui.setItem(16, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100"));
+        gui.setItem(14, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100"));
+        gui.setItem(15, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+1000"));
+        gui.setItem(16, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+10000"));
 
         // Start game button
         gui.setItem(22, createGuiItem(Material.EMERALD_BLOCK, ChatColor.GREEN + "" + ChatColor.BOLD + "START GAME"));

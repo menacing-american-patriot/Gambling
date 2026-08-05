@@ -42,22 +42,22 @@ public class WheelOfFortuneListener implements Listener {
 
             // Handle bet amount adjustments
             if (slot == 37) {
-                wheelGame.adjustBet(-100);
+                wheelGame.adjustBet(-10000);
                 player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
             } else if (slot == 38) {
-                wheelGame.adjustBet(-50);
+                wheelGame.adjustBet(-1000);
                 player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
             } else if (slot == 39) {
-                wheelGame.adjustBet(-10);
+                wheelGame.adjustBet(-100);
                 player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
             } else if (slot == 51) {
-                wheelGame.adjustBet(10);
+                wheelGame.adjustBet(100);
                 player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
             } else if (slot == 52) {
-                wheelGame.adjustBet(50);
+                wheelGame.adjustBet(1000);
                 player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
             } else if (slot == 53) {
-                wheelGame.adjustBet(100);
+                wheelGame.adjustBet(10000);
                 player.sendActionBar(ChatColor.YELLOW + "Bet: " + Gambling.getEconomy().format(wheelGame.getCurrentBet()));
             }
 

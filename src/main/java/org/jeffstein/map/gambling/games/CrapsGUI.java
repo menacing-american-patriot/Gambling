@@ -25,7 +25,7 @@ public class CrapsGUI implements InventoryHolder {
     private static final int PASS_LINE_SLOT = 30;
     private static final int DONT_PASS_SLOT = 32;
     private static final int CURRENT_BET_SLOT = 39;
-    private static final int ACTION_SLOT = 44;
+    private static final int ACTION_SLOT = 53;
     private static final int SUMMARY_SLOT = 49;
     private static final int[] HISTORY_SLOTS = {0, 1, 2, 3, 4, 5};
 
@@ -77,19 +77,23 @@ public class CrapsGUI implements InventoryHolder {
             ChatColor.GOLD + "Last Outcome",
             ChatColor.GRAY + "No rolls yet"));
 
+        gui.setItem(36, createGuiItem(Material.RED_STAINED_GLASS_PANE,
+            ChatColor.RED + "-10000", ChatColor.GRAY + "Decrease bet"));
         gui.setItem(37, createGuiItem(Material.RED_STAINED_GLASS_PANE,
-            ChatColor.RED + "-100", ChatColor.GRAY + "Decrease bet"));
+            ChatColor.RED + "-1000", ChatColor.GRAY + "Decrease bet"));
         gui.setItem(38, createGuiItem(Material.RED_STAINED_GLASS_PANE,
-            ChatColor.RED + "-50", ChatColor.GRAY + "Decrease bet"));
+            ChatColor.RED + "-100", ChatColor.GRAY + "Decrease bet"));
 
         gui.setItem(CURRENT_BET_SLOT, createGuiItem(Material.GOLD_INGOT,
             ChatColor.GOLD + "Current Bet",
             ChatColor.WHITE + Gambling.getEconomy().format(currentBet)));
 
         gui.setItem(42, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
-            ChatColor.GREEN + "+50", ChatColor.GRAY + "Increase bet"));
-        gui.setItem(43, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
             ChatColor.GREEN + "+100", ChatColor.GRAY + "Increase bet"));
+        gui.setItem(43, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
+            ChatColor.GREEN + "+1000", ChatColor.GRAY + "Increase bet"));
+        gui.setItem(44, createGuiItem(Material.LIME_STAINED_GLASS_PANE,
+            ChatColor.GREEN + "+10000", ChatColor.GRAY + "Increase bet"));
 
         gui.setItem(ACTION_SLOT, createGuiItem(Material.DIAMOND_BLOCK,
             ChatColor.AQUA + "" + ChatColor.BOLD + "ROLL DICE",

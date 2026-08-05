@@ -48,23 +48,23 @@ public class BlackjackBettingGUIListener implements Listener {
             String displayName = clickedItem.getItemMeta().getDisplayName();
             double currentBet = bettingGUI.getCurrentBet();
 
-            if (displayName.equals(ChatColor.RED + "-100")) {
+            if (displayName.equals(ChatColor.RED + "-10000")) {
+                currentBet = Math.max(10, currentBet - 10000);
+                bettingGUI.setCurrentBet(currentBet);
+            } else if (displayName.equals(ChatColor.RED + "-1000")) {
+                currentBet = Math.max(10, currentBet - 1000);
+                bettingGUI.setCurrentBet(currentBet);
+            } else if (displayName.equals(ChatColor.RED + "-100")) {
                 currentBet = Math.max(10, currentBet - 100);
-                bettingGUI.setCurrentBet(currentBet);
-            } else if (displayName.equals(ChatColor.RED + "-50")) {
-                currentBet = Math.max(10, currentBet - 50);
-                bettingGUI.setCurrentBet(currentBet);
-            } else if (displayName.equals(ChatColor.RED + "-10")) {
-                currentBet = Math.max(10, currentBet - 10);
-                bettingGUI.setCurrentBet(currentBet);
-            } else if (displayName.equals(ChatColor.GREEN + "+10")) {
-                currentBet += 10;
-                bettingGUI.setCurrentBet(currentBet);
-            } else if (displayName.equals(ChatColor.GREEN + "+50")) {
-                currentBet += 50;
                 bettingGUI.setCurrentBet(currentBet);
             } else if (displayName.equals(ChatColor.GREEN + "+100")) {
                 currentBet += 100;
+                bettingGUI.setCurrentBet(currentBet);
+            } else if (displayName.equals(ChatColor.GREEN + "+1000")) {
+                currentBet += 1000;
+                bettingGUI.setCurrentBet(currentBet);
+            } else if (displayName.equals(ChatColor.GREEN + "+10000")) {
+                currentBet += 10000;
                 bettingGUI.setCurrentBet(currentBet);
             } else if (displayName.equals(ChatColor.GREEN + "" + ChatColor.BOLD + "START GAME")) {
                 Economy economy = Gambling.getEconomy();

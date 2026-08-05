@@ -127,14 +127,14 @@ public class PlinkoGame implements InventoryHolder {
 
     private void initializeTopRowControls() {
         // Symmetrical top-row controls: 0/1 are decreases, 7/8 are increases.
-        gui.setItem(0, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100",
-                ChatColor.GRAY + "Decrease bet by 100"));
-        gui.setItem(1, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-10",
-                ChatColor.GRAY + "Decrease bet by 10"));
-        gui.setItem(7, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+10",
-                ChatColor.GRAY + "Increase bet by 10"));
-        gui.setItem(8, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100",
-                ChatColor.GRAY + "Increase bet by 100"));
+        gui.setItem(0, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-1000",
+                ChatColor.GRAY + "Decrease bet by 1000"));
+        gui.setItem(1, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-50",
+                ChatColor.GRAY + "Decrease bet by 50"));
+        gui.setItem(7, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+50",
+                ChatColor.GRAY + "Increase bet by 50"));
+        gui.setItem(8, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+1000",
+                ChatColor.GRAY + "Increase bet by 1000"));
     }
 
     public void dropBall(int dropPosition) {
@@ -183,8 +183,8 @@ public class PlinkoGame implements InventoryHolder {
             return;
         }
 
-        if (amount < 10 || amount > 10000) {
-            player.sendMessage(ChatColor.RED + "[PLINKO] Bet must be between 10 and 10000.");
+        if (amount < 10 || amount > 100000) {
+            player.sendMessage(ChatColor.RED + "[PLINKO] Bet must be between 10 and 100000.");
             return;
         }
 

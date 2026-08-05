@@ -98,23 +98,23 @@ public class CrashGUI implements InventoryHolder {
 
     private void setupBettingControls() {
         // Bet amount controls
-        gui.setItem(37, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100",
+        gui.setItem(37, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-10000",
+                ChatColor.GRAY + "Decrease bet by 10000"));
+        gui.setItem(38, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-1000",
+                ChatColor.GRAY + "Decrease bet by 1000"));
+        gui.setItem(39, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-100",
                 ChatColor.GRAY + "Decrease bet by 100"));
-        gui.setItem(38, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-50",
-                ChatColor.GRAY + "Decrease bet by 50"));
-        gui.setItem(39, createGuiItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "-10",
-                ChatColor.GRAY + "Decrease bet by 10"));
 
         gui.setItem(40, createGuiItem(Material.GOLD_INGOT, ChatColor.GOLD + "Current Bet",
                 ChatColor.WHITE + Gambling.getEconomy().format(currentBet),
                 ChatColor.GRAY + "Click to place this bet"));
 
-        gui.setItem(41, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+10",
-                ChatColor.GRAY + "Increase bet by 10"));
-        gui.setItem(42, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+50",
-                ChatColor.GRAY + "Increase bet by 50"));
-        gui.setItem(43, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100",
+        gui.setItem(41, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+100",
                 ChatColor.GRAY + "Increase bet by 100"));
+        gui.setItem(42, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+1000",
+                ChatColor.GRAY + "Increase bet by 1000"));
+        gui.setItem(43, createGuiItem(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "+10000",
+                ChatColor.GRAY + "Increase bet by 10000"));
     }
 
     private void setupGameControls() {
